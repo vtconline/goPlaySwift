@@ -14,7 +14,7 @@ struct ContentView: View {
 
     var body: some View {
         HeaderView()
-        AuthenView() // This is the view from your Swift Package
+        SelectLoginType()
         NavigationSplitView {
             List {
                 ForEach(items) { item in

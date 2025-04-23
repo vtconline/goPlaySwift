@@ -10,9 +10,12 @@ import SwiftUI
 public struct HeaderView: View {
     public var body: some View {
         HStack {
-            Text("Welcome to My Library")
-                .font(.largeTitle)
+            Spacer()
+            Text("GoPlaySDK")
+//                .font(.title)
+                .font(.system(size: 32)) // 👈 Set specific font size
                 .bold()
+                
             Spacer()
         }
         .padding()

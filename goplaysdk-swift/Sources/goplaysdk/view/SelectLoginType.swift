@@ -14,7 +14,7 @@ public struct SelectLoginType: View {
 
     public var body: some View {
             VStack(spacing: 20) {
-                NavigationLink(destination: GoIdAuthenView()) {
+                NavigationLink(destination: PhoneLoginView()) {
                     HStack {
                         Image(systemName: "phone.fill")
                         Text("Phone Login")

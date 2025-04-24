@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "goplaysdk",
     platforms: [
-            .iOS(.v13)  // Setting the minimum iOS version to 13.0
+            .iOS(.v14)  // Setting the minimum iOS version to 14.0
         ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -20,7 +20,10 @@ let package = Package(
         .target(
             name: "goplaysdk",
 //            dependencies: [],
-           path: "Sources/goplaysdk" // This is where your views will go
+//           path: "Sources/goplaysdk", // This is where your views will go
+            resources: [
+                            .process("../images") // ✅ Add your image folder here
+                        ]
         ),
         .testTarget(
             name: "goplaysdkTests",

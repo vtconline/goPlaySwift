@@ -13,54 +13,64 @@ public struct SelectLoginType: View {
     public init() {}
 
     public var body: some View {
-        VStack(spacing: 20) {
-                    Button("PhoneLogin") {
-                        print("PhoneLogin")
+            VStack(spacing: 20) {
+                NavigationLink(destination: GoIdAuthenView()) {
+                    HStack {
+                        Image(systemName: "phone.fill")
+                        Text("Phone Login")
+                            .fontWeight(.semibold)
                     }
-                    .frame(width: UIScreen.main.bounds.width/3)
                     .padding()
-                    .background(Color.blue)
+                    .frame(width: UIScreen.main.bounds.width/2)
+                    .background(AppTheme.Colors.primary)
                     .foregroundColor(.white)
                     .cornerRadius(10)
+                }
+                
+                NavigationLink(destination: GoIdAuthenView()) {
+                    HStack {
+                        Image(systemName: "person.fill")
+                        Text("GoID")
+                            .fontWeight(.semibold)
+                    }
+                    .padding()
+                    .frame(width: UIScreen.main.bounds.width/2)
+                    .background(AppTheme.Colors.primary)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
 
-                    Button("GoID") {
-                        loginTest()
-                    }
-                    .frame(width: UIScreen.main.bounds.width/3)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            
-                    Text(responseMessage)
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
+                Text(responseMessage)
+                .padding()
+                .background(Color.white)
+            }
+            .padding()
+            .background(Color.white)
+            .foregroundColor(.white)
         }
-        
-        .padding()
     }
     
     func loginTest(){
-        let requestBody: [String: Any] = [
-                            "username": "john_doe",
-                            "password": "password123"
-                        ]
-                        
-                        ApiService.shared.request(method: "POST", path: "/login", body: requestBody) { result in
-                            switch result {
-                            case .success(let data):
-                                // Convert response data to string for display
-                                if let responseString = String(data: data, encoding: .utf8) {
-                                    DispatchQueue.main.async {
-                                        responseMessage = "POST Response: \(responseString)"
-                                    }
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    responseMessage = "Error: \(error.localizedDescription)"
-                                }
-                            }
-                        }
-    }
+//        let requestBody: [String: Any] = [
+//                            "username": "john_doe",
+//                            "password": "password123"
+//                        ]
+//
+//                        ApiService.shared.request(method: "POST", path: "/login", body: requestBody) { result in
+//                            switch result {
+//                            case .success(let data):
+//                                // Convert response data to string for display
+//                                if let responseString = String(data: data, encoding: .utf8) {
+//                                    DispatchQueue.main.async {
+//                                        responseMessage = "POST Response: \(responseString)"
+//                                    }
+//                                }
+//                            case .failure(let error):
+//                                DispatchQueue.main.async {
+//                                    responseMessage = "Error: \(error.localizedDescription)"
+//                                }
+//                            }
+//                        }
+//    }
 }
 

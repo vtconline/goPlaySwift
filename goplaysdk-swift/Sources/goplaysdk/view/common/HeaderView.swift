@@ -19,7 +19,7 @@ public struct HeaderView: View {
             Spacer()
         }
         .padding()
-        .background(Color.blue)
+        .background(AppTheme.Colors.primary)
         .foregroundColor(.white)
     }
     

@@ -14,10 +14,10 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HeaderView()
+//            HeaderView()
             MainView()
 //            GoIdAuthenView()
-            Spacer()
+//            Spacer()
         }
 
     }

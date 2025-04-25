@@ -14,6 +14,7 @@ public struct SelectLoginType: View {
 
     public var body: some View {
             VStack(spacing: 20) {
+                HeaderView()
                 GoNavigationLink(
                     text: "ĐĂNG NHẬP SĐT",
                     destination: PhoneLoginView(),
@@ -44,6 +45,8 @@ public struct SelectLoginType: View {
             .padding(.vertical, 0)
             .background(Color.white)
             .foregroundColor(.white)
+//            .ignoresSafeArea()
+        
         }
     }
     

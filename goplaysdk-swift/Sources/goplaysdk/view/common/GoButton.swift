@@ -124,9 +124,11 @@ public extension GoButton where Content == AnyView {
                         }
                     }
                     
-                    Text(text)
-                        .font(Font.copyWith(size: fontSize))
-                        .foregroundColor(textColor)
+                    if(!text.isEmpty){
+                        Text(text)
+                            .font(Font.copyWith(size: fontSize))
+                            .foregroundColor(textColor)
+                    }
                 }
             )
         }

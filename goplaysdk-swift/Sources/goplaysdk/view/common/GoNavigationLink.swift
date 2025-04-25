@@ -57,9 +57,11 @@ public struct GoNavigationLink<Destination: View>: View {
                         .clipped()
                 }
 
-                Text(text)
-                    .font(font)
-                    .foregroundColor(textColor)
+                if(!text.isEmpty){
+                    Text(text)
+                        .font(font)
+                        .foregroundColor(textColor)
+                }
             }
 //            .padding()
             .padding(.vertical, verticalPadding)

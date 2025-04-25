@@ -28,5 +28,6 @@ struct SwiftSampleApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+        
     }
 }

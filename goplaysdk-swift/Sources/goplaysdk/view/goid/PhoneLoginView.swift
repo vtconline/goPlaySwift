@@ -14,30 +14,46 @@ public struct PhoneLoginView: View {
     @StateObject private var phoneNumberValidator = PhoneValidator()  // Validator for phone number
     @StateObject private var otpValidator = OTPValidator()  // Validator for OTP
     
-    @State private var checkPhoneDone = false
+    @State private var checkPhoneDone = true
     
     public init() {}
+    var spaceOriented: CGFloat {
+        // Dynamically set space based on the device orientation
+        return DeviceOrientation.shared.isLandscape ? 10 : 20
+    }
+    
     
     public var body: some View {
         
-        VStack(alignment: .center, spacing: 20) {
-            GoBackButton(text:"Quay lại")
-            Text("Phone Login")
-                .font(.largeTitle)
-                .foregroundColor(.gray)
+        VStack(alignment: .center, spacing: spaceOriented) {
+            HStack {
+                GoBackButton(text:"Quay lại")
+                Spacer()
+                
+                Text("Phone Login")
+                    .font(DeviceOrientation.shared.isLandscape ? .title : .largeTitle )
+                    .foregroundColor(.gray)
+//                    .frame(maxWidth: .infinity, alignment: .center)
+                Spacer()
+                GoBackButton(text:"Quay lại").hidden()
+            }
+            
             
             // Phone Number GoTextField
             GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Nhập số điện thoại", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
                 .keyboardType(.phonePad)
                 .padding(.horizontal, 16)
             
+            
+            
+            
             // OTP GoTextField with Get OTP Button
             if(checkPhoneDone){
                 HStack {
                     GoTextField<OTPValidator>(text: $otp, placeholder: "Enter OTP", isPwd: false, validator: otpValidator, leftIconName: "images/ic_lock_focused",
                                               isSystemIcon: false)
-                        .keyboardType(.numberPad)
-                        .padding(.trailing, 16)
+                    .keyboardType(.numberPad)
+                    .padding(.trailing, 16)
                     
                     Button(action: getOtp) {
                         Image(systemName: "paperplane.fill") // You can use any icon for the OTP button
@@ -56,11 +72,11 @@ public struct PhoneLoginView: View {
                     .fill(Color.gray)
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
-
+                
                 Text("hoặc")
                     .foregroundColor(.gray)
                     .padding(.horizontal, 8)
-
+                
                 Rectangle()
                     .fill(Color.gray)
                     .frame(height: 1)
@@ -68,21 +84,36 @@ public struct PhoneLoginView: View {
             }
             .padding(.vertical, 0)
             .padding(.horizontal, 32)
-        
-       
+            
+            
             // Navigation to GoIdAuthenView
-            GoNavigationLink(
-                text: "ĐĂNG NHẬP GOID",
-                destination: GoIdAuthenView(),
-                assetImageName: "images/logo_goplay",
-                
-                imageSize: CGSize(width: 28, height: 28),
-                font: .system(size: 16, weight: .semibold),
-                textColor: .white,
-                backgroundColor: AppTheme.Colors.secondary
-            )
+            if(DeviceOrientation.shared.isLandscape == false){
+                GoNavigationLink(
+                    text: "ĐĂNG NHẬP GOID",
+                    destination: GoIdAuthenView(),
+                    assetImageName: "images/logo_goplay",
+                    
+                    imageSize: CGSize(width: 28, height: 28),
+                    font: .system(size: 16, weight: .semibold),
+                    textColor: .white,
+                    backgroundColor: AppTheme.Colors.secondary
+                )
+            }
+            
             
             // Login with Gmail Button
+            ResponsiveView(portraitView: socialViewPortraid(), landscapeView: socialViewLandscape())
+            
+            Spacer()
+        }
+        .padding()
+        .navigationBarHidden(true) // hide navigaotr bar at top (backbtn,..etc)
+        .observeOrientation() // Apply the modifier to detect orientation changes
+        
+    }
+    
+    func socialViewPortraid() -> some View {
+        VStack {
             GoButton(
                 text: "Login with Google",
                 color: .white,
@@ -106,11 +137,99 @@ public struct PhoneLoginView: View {
             )
             
             
+            GoButton(
+                color: .white,
+                borderColor: .black,
+                width: 60,
+                action: loginGuest
+                
+            ){
+                ZStack {
+                    Image(systemName: "person")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.black)
+                    
+                    VStack {
+                        Spacer()
+                        Text("Login nhanh")
+                            .font(.caption)
+                            .foregroundColor(.black)
+                        //                            .bold()
+                            .shadow(radius: 1)
+                            .padding(.top, 22)
+                    }
+                    .frame(width: 40,height: 24)
+                }
+                
+            }
             
+        }
+    }
+    
+    func socialViewLandscape() -> some View {
+        HStack {
+            Spacer()
+            GoNavigationLink(
+                text: "",
+                destination: GoIdAuthenView(),
+                assetImageName: "images/logo_goplay",
+                width: 60,
+                imageSize: CGSize(width: 24, height: 24),
+                font: .system(size: 16, weight: .semibold),
+                textColor: .white,
+                backgroundColor: AppTheme.Colors.secondary
+            )
+            GoButton(
+                text: "",
+                color: .white,
+                borderColor: .black,
+                textColor: .black,
+                width: 60,
+                iconName: "images/google_icon",
+                isSystemIcon: false,
+                iconSize: 24,
+                action: loginWithGmail
+            )
+            
+            GoButton(
+                text: "",
+                color: AppTheme.Colors.apple,
+                textColor: .white,
+                iconSysColor: .white,
+                width: 60,
+                iconName: "apple.logo",
+                iconPadding: EdgeInsets(top: 0, leading: 0, bottom: 6, trailing: 0),
+                action: loginWithGmail
+            )
+            GoButton(
+                color: .white,
+                borderColor: .black,
+                width: 60,
+                action: loginGuest
+                
+            ){
+                ZStack {
+                    Image(systemName: "person")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.black)
+                    
+                    VStack {
+                        Spacer()
+                        Text("Guest")
+                            .font(.caption)
+                            .foregroundColor(.black)
+                        //                            .bold()
+                            .shadow(radius: 1)
+                            .padding(.top, 22)
+                    }
+                    .frame(width: 40,height: 24)
+                }
+                
+            }
             Spacer()
         }
-        .padding()
-        .navigationBarHidden(true) // hide navigaotr bar at top (backbtn,..etc)
         
     }
     
@@ -135,10 +254,10 @@ public struct PhoneLoginView: View {
     
     // Function to submit phone number and OTP for verification
     private func submitPhoneLogin() {
-//        guard !phoneNumber.isEmpty, !otp.isEmpty else {
-//            alertMessage = "Please enter both phone number and OTP."
-//            return
-//        }
+        //        guard !phoneNumber.isEmpty, !otp.isEmpty else {
+        //            alertMessage = "Please enter both phone number and OTP."
+        //            return
+        //        }
         
         LoadingDialog.instance.show();
         isLoading = true
@@ -151,7 +270,10 @@ public struct PhoneLoginView: View {
             LoadingDialog.instance.hide();
         }
     }
-    
+    private func loginGuest() {
+        // Trigger Gmail login logic here
+        alertMessage = "loginGuest triggered."
+    }
     // Function for Gmail login (dummy)
     private func loginWithGmail() {
         // Trigger Gmail login logic here
@@ -162,39 +284,5 @@ public struct PhoneLoginView: View {
     private func loginWithApple() {
         // Trigger Apple login logic here
         alertMessage = "Login with Apple triggered."
-    }
-}
-
-// Portrait content view
-struct PortraitView: View {
-    var body: some View {
-        VStack {
-            Text("Portrait Mode")
-                .font(.title2)
-                .padding()
-            Image(systemName: "arrow.up.arrow.down")
-                .font(.largeTitle)
-            Text("This content is suitable for portrait orientation.")
-                .font(.body)
-                .padding()
-        }
-    }
-}
-
-// Landscape content view
-struct LandscapeView: View {
-    var body: some View {
-        VStack {
-            Text("Landscape Mode")
-                .font(.title2)
-                .padding()
-            HStack {
-                Image(systemName: "arrow.left.arrow.right")
-                    .font(.largeTitle)
-                Text("This content is suitable for landscape orientation.")
-                    .font(.body)
-                    .padding()
-            }
-        }
     }
 }

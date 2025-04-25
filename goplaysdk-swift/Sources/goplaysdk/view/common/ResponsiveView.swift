@@ -16,11 +16,6 @@ struct ResponsiveView<PortraitContent: View, LandscapeContent: View>: View {
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                // Orientation label (optional, you can remove this in production)
-                Text("Orientation: \(isLandscape ? "Landscape" : "Portrait")")
-                    .font(.title)
-                    .padding()
-                
                 // Conditional rendering based on the orientation
                 if isLandscape {
                     landscapeView // Display landscape content
@@ -30,11 +25,11 @@ struct ResponsiveView<PortraitContent: View, LandscapeContent: View>: View {
             }
             .onAppear {
                 // Initial orientation check when the view appears
-                self.isLandscape = geometry.size.width > geometry.size.height
+                self.isLandscape = DeviceOrientation.shared.isLandscape  //geometry.size.width > geometry.size.height
             }
             .onChange(of: geometry.size) { newSize in
                 // Detect orientation changes when size changes
-                self.isLandscape = newSize.width > newSize.height
+                self.isLandscape = DeviceOrientation.shared.isLandscape //newSize.width > newSize.height
             }
             .padding()
         }

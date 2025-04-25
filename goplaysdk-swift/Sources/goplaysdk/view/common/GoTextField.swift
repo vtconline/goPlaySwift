@@ -10,34 +10,47 @@ struct GoTextField<Validator: TextFieldValidator>: View {
     var leftIconName: String? = nil
     var isSystemIcon: Bool = true
     var isPwd: Bool = false
+    var widthBtn: CGFloat = 300
     private var paddingHorizontal: CGFloat = 16
     private var scaleFactor: CGFloat {
         return 1
         //        return UIScreen.main.scale
     }
     
-    public init(text: Binding<String>, placeholder: String = "user name", isPwd: Bool = false, validator: Validator, leftIconName: String? = nil, isSystemIcon: Bool = true, keyBoardFocused: Binding<Bool> = .constant(false)) {
+    public init(text: Binding<String>, placeholder: String = "user name", isPwd: Bool = false, validator: Validator, widthBtn: CGFloat = 300,leftIconName: String? = nil, isSystemIcon: Bool = true, keyBoardFocused: Binding<Bool> = .constant(false)) {
         self._text = text // ✅ Bindings use underscore!
         self.placeholder = placeholder
         self.leftIconName = leftIconName
         self.isSystemIcon = isSystemIcon
         self.validator = validator
         self.isPwd = isPwd
+        self.widthBtn = widthBtn
         self._keyBoardFocused = keyBoardFocused // 🟢 Bind the passed in `keyBoardFocused` state
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 // Optional Left Icon (from assets in the main bundle)
-                if let icon = leftIconName, let image = UIImage(named: icon,in: Bundle.module, compatibleWith: nil) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 48 * scaleFactor, height: 48 * scaleFactor)
-                        .clipped() // Trims any overflowing content
-                    //                        .foregroundColor(.gray)
-                    //                        .padding(.leading, 12)
+                if(isSystemIcon){
+                    if let icon = leftIconName{
+                        Image(systemName: icon).resizable()
+                            .scaledToFit()
+                            .frame(width: 48 * scaleFactor, height: 48 * scaleFactor)
+                            .clipped()
+                    }
                 }
+                else{
+                    if let icon = leftIconName, let image = UIImage(named: icon,in: Bundle.module, compatibleWith: nil) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 48 * scaleFactor, height: 48 * scaleFactor)
+                            .clipped() // Trims any overflowing content
+                        //                        .foregroundColor(.gray)
+                        //                        .padding(.leading, 12)
+                    }
+                }
+                
                 //                TextField(placeholder, text: $text)
                 //                    .padding(.trailing, 12) // only right side
                 //                    .padding(.vertical, 12)
@@ -47,6 +60,7 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                     SecureField(placeholder, text: $text)
                         .font(.system(size: 16))
                         .padding(.vertical, 12)
+                        .padding(.trailing, 12)
                         .autocorrectionDisabled(true)
                         .keyboardType(.asciiCapable)
                         .background(UIViewRepresentableFocus(keyBoardFocused: $keyBoardFocused))
@@ -54,6 +68,7 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                     TextField(placeholder, text: $text)
                         .font(.system(size: 16))
                         .padding(.vertical, 12)
+                        .padding(.trailing, 12)
                         .autocorrectionDisabled(true)
                         .keyboardType(.asciiCapable)
                         .background(UIViewRepresentableFocus(keyBoardFocused: $keyBoardFocused))
@@ -71,8 +86,8 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                 }
                 
             }
-            .frame(width: min(UIScreen.main.bounds.width - 2*paddingHorizontal, 300))
-            
+//            .frame(width: min(UIScreen.main.bounds.width - 2*paddingHorizontal, widthBtn))
+            .frame(maxWidth: widthBtn == nil ? .infinity : widthBtn)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.gray.opacity(0.1), lineWidth: 2))

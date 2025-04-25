@@ -2,35 +2,42 @@ import SwiftUI
 
 public struct PhoneLoginView: View {
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
+    
     @State private var phoneNumber = ""  // Store the phone number
     @State private var otp = ""  // Store the OTP
     @State private var otpButtonText = "Get OTP"  // Text for OTP button
     @State private var isOtpSent = false  // Track OTP sent status
     @State private var alertMessage = ""  // Alert message
     @State private var isLoading = false  // Loading state for API calls
-
+    
     @StateObject private var phoneNumberValidator = PhoneValidator()  // Validator for phone number
     @StateObject private var otpValidator = OTPValidator()  // Validator for OTP
-
+    
+    @State private var checkPhoneDone = false
+    
     public init() {}
     
     public var body: some View {
-        NavigationView {
-            VStack(alignment: .center, spacing: 20) {
-                Text("Phone Login")
-                    .font(.largeTitle)
-                    .foregroundColor(.gray)
-
-                // Phone Number GoTextField
-                GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Enter Phone Number", isPwd: false, validator: phoneNumberValidator, leftIconName: "phone.fill", isSystemIcon: true)
-                    .keyboardType(.phonePad)
-                    .padding(.horizontal, 16)
-                
-                // OTP GoTextField with Get OTP Button
+        
+        VStack(alignment: .center, spacing: 20) {
+            GoBackButton(text:"Quay lại")
+            Text("Phone Login")
+                .font(.largeTitle)
+                .foregroundColor(.gray)
+            
+            // Phone Number GoTextField
+            GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Nhập số điện thoại", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
+                .keyboardType(.phonePad)
+                .padding(.horizontal, 16)
+            
+            // OTP GoTextField with Get OTP Button
+            if(checkPhoneDone){
                 HStack {
-                    GoTextField<OTPValidator>(text: $otp, placeholder: "Enter OTP", isPwd: false, validator: otpValidator, leftIconName: "lock.fill", isSystemIcon: true)
+                    GoTextField<OTPValidator>(text: $otp, placeholder: "Enter OTP", isPwd: false, validator: otpValidator, leftIconName: "images/ic_lock_focused",
+                                              isSystemIcon: false)
                         .keyboardType(.numberPad)
-                        .padding(.horizontal, 16)
+                        .padding(.trailing, 16)
                     
                     Button(action: getOtp) {
                         Image(systemName: "paperplane.fill") // You can use any icon for the OTP button
@@ -38,53 +45,73 @@ public struct PhoneLoginView: View {
                             .padding()
                     }
                 }
-
-                // Submit Button to verify phone and OTP
-                Button(action: submitPhoneLogin) {
-                    Text("Verify and Login")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(isLoading ? Color.gray : Color.blue)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 16)
-                        .disabled(isLoading)
-                }
-
-                // Navigation to GoIdAuthenView
-                NavigationLink(destination: GoIdAuthenView()) {
-                    Text("Back to Login")
-                        .foregroundColor(.blue)
-                        .padding(.top, 10)
-                }
-
-                // Login with Gmail Button
-                Button(action: loginWithGmail) {
-                    Text("Login with Gmail")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.red)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 16)
-                }
-
-                // Login with Apple Button
-                Button(action: loginWithApple) {
-                    Text("Login with Apple")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.black)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 16)
-                }
-
-                Spacer()
+                .frame(width: min(UIScreen.main.bounds.width - 32, 300))
             }
-            .padding()
-            .navigationBarHidden(true)
+            
+            // Submit Button to verify phone and OTP
+            GoButton(text: "ĐĂNG NHẬP SĐT", action: submitPhoneLogin)
+            
+            HStack(alignment: .center) {
+                Rectangle()
+                    .fill(Color.gray)
+                    .frame(height: 1)
+                    .frame(maxWidth: .infinity)
+
+                Text("hoặc")
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 8)
+
+                Rectangle()
+                    .fill(Color.gray)
+                    .frame(height: 1)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.vertical, 0)
+            .padding(.horizontal, 32)
+        
+       
+            // Navigation to GoIdAuthenView
+            GoNavigationLink(
+                text: "ĐĂNG NHẬP GOID",
+                destination: GoIdAuthenView(),
+                assetImageName: "images/logo_goplay",
+                
+                imageSize: CGSize(width: 28, height: 28),
+                font: .system(size: 16, weight: .semibold),
+                textColor: .white,
+                backgroundColor: AppTheme.Colors.secondary
+            )
+            
+            // Login with Gmail Button
+            GoButton(
+                text: "Login with Google",
+                color: .white,
+                borderColor: .black,
+                textColor: .black,
+                
+                iconName: "images/google_icon",
+                isSystemIcon: false,
+                iconSize: 24,
+                action: loginWithGmail
+            )
+            
+            GoButton(
+                text: "Login with Apple",
+                color: AppTheme.Colors.apple,
+                textColor: .white,
+                iconSysColor: .white,
+                iconName: "apple.logo",
+                iconPadding: EdgeInsets(top: 0, leading: 0, bottom: 6, trailing: 0),
+                action: loginWithGmail
+            )
+            
+            
+            
+            Spacer()
         }
+        .padding()
+        .navigationBarHidden(true) // hide navigaotr bar at top (backbtn,..etc)
+        
     }
     
     // Function to call the API to get OTP
@@ -108,11 +135,12 @@ public struct PhoneLoginView: View {
     
     // Function to submit phone number and OTP for verification
     private func submitPhoneLogin() {
-        guard !phoneNumber.isEmpty, !otp.isEmpty else {
-            alertMessage = "Please enter both phone number and OTP."
-            return
-        }
+//        guard !phoneNumber.isEmpty, !otp.isEmpty else {
+//            alertMessage = "Please enter both phone number and OTP."
+//            return
+//        }
         
+        LoadingDialog.instance.show();
         isLoading = true
         
         // Call API for phone number and OTP verification (dummy code, replace with actual API)
@@ -120,18 +148,53 @@ public struct PhoneLoginView: View {
             isLoading = false
             alertMessage = "Phone number and OTP verified. Logging in..."
             // Continue with login process
+            LoadingDialog.instance.hide();
         }
     }
-
+    
     // Function for Gmail login (dummy)
     private func loginWithGmail() {
         // Trigger Gmail login logic here
         alertMessage = "Login with Gmail triggered."
     }
-
+    
     // Function for Apple login (dummy)
     private func loginWithApple() {
         // Trigger Apple login logic here
         alertMessage = "Login with Apple triggered."
+    }
+}
+
+// Portrait content view
+struct PortraitView: View {
+    var body: some View {
+        VStack {
+            Text("Portrait Mode")
+                .font(.title2)
+                .padding()
+            Image(systemName: "arrow.up.arrow.down")
+                .font(.largeTitle)
+            Text("This content is suitable for portrait orientation.")
+                .font(.body)
+                .padding()
+        }
+    }
+}
+
+// Landscape content view
+struct LandscapeView: View {
+    var body: some View {
+        VStack {
+            Text("Landscape Mode")
+                .font(.title2)
+                .padding()
+            HStack {
+                Image(systemName: "arrow.left.arrow.right")
+                    .font(.largeTitle)
+                Text("This content is suitable for landscape orientation.")
+                    .font(.body)
+                    .padding()
+            }
+        }
     }
 }

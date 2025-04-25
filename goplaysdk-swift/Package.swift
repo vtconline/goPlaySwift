@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "goplaysdk",
     platforms: [
-            .iOS(.v14)  // Setting the minimum iOS version to 14.0
+            .iOS(.v15)  // Setting the minimum iOS version to 15.0
         ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.

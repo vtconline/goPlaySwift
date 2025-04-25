@@ -13,7 +13,7 @@ struct ContentView: View {
     @Query private var items: [Item]
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             HeaderView()
             MainView()
 //            GoIdAuthenView()

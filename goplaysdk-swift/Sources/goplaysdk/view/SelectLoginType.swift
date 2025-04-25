@@ -14,37 +14,34 @@ public struct SelectLoginType: View {
 
     public var body: some View {
             VStack(spacing: 20) {
-                NavigationLink(destination: PhoneLoginView()) {
-                    HStack {
-                        Image(systemName: "phone.fill")
-                        Text("Phone Login")
-                            .fontWeight(.semibold)
-                    }
-                    .padding()
-                    .frame(width: UIScreen.main.bounds.width/2)
-                    .background(AppTheme.Colors.primary)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                }
+                GoNavigationLink(
+                    text: "ĐĂNG NHẬP SĐT",
+                    destination: PhoneLoginView(),
+                    systemImageName: "phone.fill",
+                    
+                    imageSize: CGSize(width: 16, height: 16),
+                    font: .system(size: 16, weight: .semibold),
+                    textColor: .white,
+                    backgroundColor: AppTheme.Colors.primary
+                )
+                GoNavigationLink(
+                    text: "ĐĂNG NHẬP GOID",
+                    destination: GoIdAuthenView(),
+                    assetImageName: "images/logo_goplay",
+                    
+                    imageSize: CGSize(width: 24, height: 24),
+                    font: .system(size: 16, weight: .semibold),
+                    textColor: .white,
+                    backgroundColor: AppTheme.Colors.primary
+                )
                 
-                NavigationLink(destination: GoIdAuthenView()) {
-                    HStack {
-                        Image(systemName: "person.fill")
-                        Text("GoID")
-                            .fontWeight(.semibold)
-                    }
-                    .padding()
-                    .frame(width: UIScreen.main.bounds.width/2)
-                    .background(AppTheme.Colors.primary)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                }
+                
 
                 Text(responseMessage)
                 .padding()
                 .background(Color.white)
             }
-            .padding()
+            .padding(.vertical, 0)
             .background(Color.white)
             .foregroundColor(.white)
         }

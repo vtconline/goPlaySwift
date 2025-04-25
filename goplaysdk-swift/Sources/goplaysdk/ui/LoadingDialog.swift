@@ -29,17 +29,21 @@ class LoadingDialog {
         //set touch on overlay -> prevent touch on below view
         overlay.isUserInteractionEnabled = true
         // Create and add spinner
-        let loadingBox = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        loadingBox.backgroundColor = UIColor.black.withAlphaComponent(0.8)
-        loadingBox.layer.cornerRadius = 10
-        loadingBox.center = overlay.center
-
+//        let loadingBox = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+//        loadingBox.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+//        loadingBox.layer.cornerRadius = 10
+//        loadingBox.center = overlay.center
+ 
+          
         let spinner = UIActivityIndicatorView(style: .large)
         spinner.center = CGPoint(x: 50, y: 50)
+        spinner.color = UIColor(AppTheme.Colors.primary)
+        spinner.center = overlay.center //remove if use loadingBox
         spinner.startAnimating()
-
-        loadingBox.addSubview(spinner)
-        overlay.addSubview(loadingBox)
+        
+//        loadingBox.addSubview(spinner)
+//         overlay.addSubview(loadingBox)
+        overlay.addSubview(spinner)
 
         // Add overlay to parent
         parentView?.addSubview(overlay)

@@ -11,6 +11,7 @@ import SwiftUI
 public struct GoIdAuthenView: View {
     // Accessing the presentation mode to dismiss the view
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     
     @State private var username = ""  // Store the username
     @State private var password = ""  // Store the password
@@ -28,11 +29,7 @@ public struct GoIdAuthenView: View {
     
     public var body: some View {
         VStack(alignment: .center, spacing: 20 ) {
-            
-            Text("ĐĂNG NHẬP")
-                .font(.largeTitle)
-                .foregroundColor(.gray)
-            
+           
             GoTextField<UsernameValidator>(text: $username, placeholder:"Tên đăng nhập", isPwd: false, validator: usernameValidator,leftIconName: "images/ic_user_focused",  // This should be the name of your image in Resources/Images
                                            isSystemIcon: false,
                                            //                                           keyBoardFocused: $usernameFocus
@@ -51,7 +48,11 @@ public struct GoIdAuthenView: View {
             .keyboardType(.default)
             
             Toggle("Ghi nhớ đăng nhập", isOn: $rememberMe)
-                .padding(.horizontal, 32)
+//                .padding(.horizontal, 32)
+                .frame(maxWidth: min(
+                    UIScreen.main.bounds.width - 2 * AppTheme.Paddings.horizontal,
+                    300
+                ), alignment: .center)
             
             GoButton(text: "Đăng nhập", action:{
                 let validation = usernameValidator.validate(text: username)
@@ -103,6 +104,23 @@ public struct GoIdAuthenView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) //topLeading
         .background(Color.white)
+        .observeOrientation()
+        .navigationTitle("Đăng nhập GoID")
+        //                .navigationBarBackButtonHidden(false) // Show back button (default)
+        
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Quay lại") // ← Custom back button text
+                    }
+                }
+            }
+        }
     }
 }
 

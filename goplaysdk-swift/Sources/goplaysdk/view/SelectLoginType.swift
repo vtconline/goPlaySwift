@@ -15,6 +15,7 @@ public struct SelectLoginType: View {
     public var body: some View {
             VStack(spacing: 20) {
                 HeaderView()
+                Spacer()
                 GoNavigationLink(
                     text: "ĐĂNG NHẬP SĐT",
                     destination: PhoneLoginView(),
@@ -36,7 +37,7 @@ public struct SelectLoginType: View {
                     backgroundColor: AppTheme.Colors.primary
                 )
                 
-                
+                Spacer()
 
                 Text(responseMessage)
                 .padding()

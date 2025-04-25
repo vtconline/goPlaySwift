@@ -22,7 +22,9 @@ public struct GoBackButton: View {
             }) {
                 HStack {
                     Image(systemName: "chevron.left")
-                    Text(txt)
+                    if(!txt.isEmpty){
+                        Text(txt)
+                    }
                 }
             }
             Spacer()
@@ -33,11 +35,5 @@ public struct GoBackButton: View {
     public init(text: String = "Quay lại",action: (() -> Void)? = nil) {
         self.txt = text
         self.customAction = action
-    }
-}
-
-public struct GoBackButton_Previews: PreviewProvider {
-    public static var previews: some View {
-        GoBackButton()
     }
 }

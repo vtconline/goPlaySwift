@@ -31,7 +31,10 @@ struct ResponsiveView<PortraitContent: View, LandscapeContent: View>: View {
                 // Detect orientation changes when size changes
                 self.isLandscape = DeviceOrientation.shared.isLandscape //newSize.width > newSize.height
             }
-            .padding()
+            .padding(.horizontal,0)
+            .padding(.vertical, 0)
+            .frame(maxWidth: .infinity, alignment: .center)
+            
         }
         .edgesIgnoringSafeArea(.all) // Optional: To make the view fill the screen
     }

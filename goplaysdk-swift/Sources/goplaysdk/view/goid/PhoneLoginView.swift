@@ -19,25 +19,13 @@ public struct PhoneLoginView: View {
     public init() {}
     var spaceOriented: CGFloat {
         // Dynamically set space based on the device orientation
-        return DeviceOrientation.shared.isLandscape ? 10 : 20
+        return DeviceOrientation.shared.isLandscape ? 10 : 10
     }
     
     
     public var body: some View {
         
         VStack(alignment: .center, spacing: spaceOriented) {
-            HStack {
-                GoBackButton(text:"Quay lại")
-                Spacer()
-                
-                Text("Phone Login")
-                    .font(DeviceOrientation.shared.isLandscape ? .title : .largeTitle )
-                    .foregroundColor(.gray)
-//                    .frame(maxWidth: .infinity, alignment: .center)
-                Spacer()
-                GoBackButton(text:"Quay lại").hidden()
-            }
-            
             
             // Phone Number GoTextField
             GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Nhập số điện thoại", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
@@ -86,38 +74,54 @@ public struct PhoneLoginView: View {
             .padding(.horizontal, 32)
             
             
-            // Navigation to GoIdAuthenView
-            if(DeviceOrientation.shared.isLandscape == false){
-                GoNavigationLink(
-                    text: "ĐĂNG NHẬP GOID",
-                    destination: GoIdAuthenView(),
-                    assetImageName: "images/logo_goplay",
-                    
-                    imageSize: CGSize(width: 28, height: 28),
-                    font: .system(size: 16, weight: .semibold),
-                    textColor: .white,
-                    backgroundColor: AppTheme.Colors.secondary
-                )
-            }
+            
             
             
             // Login with Gmail Button
             ResponsiveView(portraitView: socialViewPortraid(), landscapeView: socialViewLandscape())
             
+            
             Spacer()
         }
         .padding()
-        .navigationBarHidden(true) // hide navigaotr bar at top (backbtn,..etc)
         .observeOrientation() // Apply the modifier to detect orientation changes
+        //        .navigationBarHidden(true) // hide navigaotr bar at top
+        .navigationTitle("Đăng nhập với SĐT")
+        //                .navigationBarBackButtonHidden(false) // Show back button (default)
+        
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Quay lại") // ← Custom back button text
+                    }
+                }
+            }
+        }
+        
         
     }
     
     func socialViewPortraid() -> some View {
-        VStack {
+        VStack(spacing: spaceOriented) {
+            GoNavigationLink(
+                text: "ĐĂNG NHẬP GOID",
+                destination: GoIdAuthenView(),
+                assetImageName: "images/logo_goplay",
+                
+                imageSize: CGSize(width: 28, height: 28),
+                font: .system(size: 16, weight: .semibold),
+                textColor: .white,
+                backgroundColor: AppTheme.Colors.secondary
+            )
             GoButton(
                 text: "Login with Google",
                 color: .white,
-                borderColor: .black,
+                borderColor: .gray.opacity(0.75),
                 textColor: .black,
                 
                 iconName: "images/google_icon",
@@ -136,35 +140,22 @@ public struct PhoneLoginView: View {
                 action: loginWithGmail
             )
             
-            
             GoButton(
+                text: "Login nhanh",
                 color: .white,
-                borderColor: .black,
-                width: 60,
+                borderColor:.gray,
+                textColor: .black,
+                iconSysColor: .black,
+                
+                iconName: "person",
                 action: loginGuest
-                
-            ){
-                ZStack {
-                    Image(systemName: "person")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(.black)
-                    
-                    VStack {
-                        Spacer()
-                        Text("Login nhanh")
-                            .font(.caption)
-                            .foregroundColor(.black)
-                        //                            .bold()
-                            .shadow(radius: 1)
-                            .padding(.top, 22)
-                    }
-                    .frame(width: 40,height: 24)
-                }
-                
-            }
+            )
+            
             
         }
+        .padding(.vertical,0)
+        .padding(.horizontal,0)
+        
     }
     
     func socialViewLandscape() -> some View {

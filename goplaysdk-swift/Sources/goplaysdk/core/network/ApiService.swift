@@ -74,9 +74,20 @@ class ApiService {
         request.httpMethod = method
         
         var bodyParams : [String: Any] = [:]
+        // Append data from getPartnerParams to requestBody
+        var bodyMerge: [String: Any]? = body  // Let's assume body is provided earlie
+        if var mergedBody = bodyMerge {
+            let partnerParams = Utils.getPartnerParams()
+            mergedBody = mergedBody.merging(partnerParams) { current, _ in current }
+
+            // Update the bodyMerge to the mergedBody
+            bodyMerge = mergedBody
+        }
         
-        if method == "POST", var requestBody = body {
+        
+        if method == "POST", var requestBody = bodyMerge {
             if sign {
+                print("requestBody before jwt \(requestBody)")
                 bodyParams["jwt"] = await generateSignature(data: requestBody) ?? ""
             }else{
                 bodyParams = requestBody
@@ -174,7 +185,7 @@ class ApiService {
             // Sign JWT
             // Sign the payload, returning the JWT as String
             let jwt = try await keys.sign(payload)//, kid: "my-key"
-            print("jwt \(jwt)")
+//            print("jwt \(jwt)")
             
             return jwt
             

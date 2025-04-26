@@ -1,7 +1,7 @@
 import SwiftUI
 extension View {
     // Function to reset navigation when app goes inactive
-        func resetNavigationWhenInActive(navigationManager: NavigationManager, scenePhase: ScenePhase) -> some View {
+    public func resetNavigationWhenInActive(navigationManager: NavigationManager, scenePhase: ScenePhase) -> some View {
             self.onChange(of: scenePhase) { phase in
                 print("navigationManager.resetNavigation phase = \(phase) ")
                 if phase == .inactive {
@@ -11,7 +11,7 @@ extension View {
             }
         }
 
-    func navigateToDestination(navigationManager: NavigationManager) -> some View {
+    public func navigateToDestination(navigationManager: NavigationManager) -> some View {
         // Use background modifier with NavigationLink that is triggered based on the NavigationManager state
         self.background(
             NavigationLink(
@@ -32,29 +32,48 @@ extension View {
         switch destination {
         case .goIdAuthenView:
             return AnyView(GoIdAuthenView()) // Replace with actual view
-//        case .anotherView:
-//            return AnyView(AnotherView()) // Replace with actual view
+        case .userInfoView:
+            return AnyView(RegisterView()) // Replace with actual view
         case .none:
             return AnyView(EmptyView()) // No navigation
         }
     }
 }
 // Move NavigationDestination outside of NavigationManager
- enum NavigationDestination {
+public enum NavigationDestination {
     case goIdAuthenView
-//    case anotherView
+    case userInfoView
 }
- class NavigationManager: ObservableObject {
+@MainActor
+public class NavigationManager: ObservableObject {
     // Track the current destination
     @Published var destination: NavigationDestination?
-
+    @Published var path: [NavigationDestination] = []
+    public init() { } // <-- ADD THIS: ensure public this init for use in other app
     
     // Navigation functions to set the destination
-    func navigate(to destination: NavigationDestination) {
+    public func navigate(to destination: NavigationDestination) {
+        
         self.destination = destination
+        path.append(destination)
     }
+    public func popToRoot() {
+            path.removeAll()
+        }
     
-    func resetNavigation() {
+    func popBackTo(_ destination: NavigationDestination) {
+            while path.last != destination {
+                path.removeLast()
+            }
+        }
+        
+        func popBackUntil(where shouldStop: (NavigationDestination) -> Bool) {
+            while let last = path.last, !shouldStop(last) {
+                path.removeLast()
+            }
+        }
+    
+    public func resetNavigation() {
         self.destination = nil
     }
 }

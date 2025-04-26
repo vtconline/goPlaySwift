@@ -23,6 +23,11 @@ class PhoneValidator: TextFieldValidator {
             errorMessage = "Mật khẩu phải dài từ \(minLength) đến \(maxLength) ký tự."
             return (isValid, errorMessage)
         }
+        guard text.hasPrefix("0") || text.hasPrefix("84") || text.hasPrefix("+84") else {
+            isValid = false
+            errorMessage = "Số điện thoại phải bắt đầu bằng 0, 84 hoặc +84."
+            return (isValid, errorMessage)
+        }
         return (isValid,errorMessage)
     }
 }

@@ -56,22 +56,7 @@ public struct GoIdAuthenView: View {
                     300
                 ), alignment: .center)
             
-            GoButton(text: "Đăng nhập", action:{
-                let validation = usernameValidator.validate(text: username)
-                let validationPwd = pwdValidator.validate(text: password)
-                if(validation.isValid == false || validationPwd.isValid == false){
-                    //                    usernameFocus = true
-                    return
-                }
-                if rememberMe {
-                    UserDefaults.standard.set(username, forKey: "savedUsername")
-                    if let pwdData = password.data(using: .utf8) {
-                        KeychainHelper.save(key: "savedPassword", data: pwdData)
-                    }
-                }
-                
-            }
-            )
+            GoButton(text: "Đăng nhập", action:submitLoginGoId)
             
             // HStack for buttons in a row
             // HStack for buttons in a row, centered horizontally
@@ -126,5 +111,97 @@ public struct GoIdAuthenView: View {
             }
         }
     }
+    
+    private func submitLoginGoId() {
+        let validation = usernameValidator.validate(text: username)
+        let validationPwd = pwdValidator.validate(text: password)
+        if(validation.isValid == false || validationPwd.isValid == false){
+            
+            return
+        }
+        if rememberMe {
+            UserDefaults.standard.set(username, forKey: "savedUsername")
+            if let pwdData = password.data(using: .utf8) {
+                KeychainHelper.save(key: "savedPassword", data: pwdData)
+            }
+        }
+//                guard !phoneNumber.isEmpty, !otp.isEmpty else {
+//                    alertMessage = "Vui lòng nhập SĐT và otp"
+//                    AlertDialog.instance.show(message: alertMessage)
+//                    return
+//                }
+  
+        LoadingDialog.instance.show();
+       
+        // This would be a sample data payload to send in the POST request
+        let md5: String = Utils.generateHashMD5(input:password) ?? ""
+        let bodyData: [String: Any] = [
+            "username": username,
+            "passwordmd5": md5,
+          
+        ]
+
+        // Now, you can call the `post` method on ApiService
+        Task {
+            await ApiService.shared.post(path: GoApi.oauthLogin, body: bodyData) { result in
+                        DispatchQueue.main.async {
+                         
+                            LoadingDialog.instance.hide();
+                        }
+                
+                switch result {
+                case .success(let data):
+                    // Handle successful response
+
+                    // Parse the response if necessary
+                    if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
+                       let responseDict = jsonResponse as? [String: Any] {
+                        print("submitLoginGoId Response: \(responseDict)")
+                        onLoginResponse(response: responseDict)
+                    }
+                    
+                case .failure(let error):
+                    // Handle failure response
+//                    print("Error: \(error.localizedDescription)")
+                    AlertDialog.instance.show(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func onLoginResponse(response: [String: Any]) {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: response, options: [])
+            let apiResponse =  try JSONDecoder().decode(GoPlayApiResponse<TokenData>.self, from: jsonData)
+            
+            var message = "Lỗi đăng nhập"
+            
+
+            if apiResponse.isSuccess() {
+                
+                print("onLoginResponse onRequestSuccess userName: \(apiResponse.data.accessToken)")
+                let tokenData : TokenData = apiResponse.data
+                if let session = GoPlaySession.deserialize(data: tokenData) {
+                    KeychainHelper.save(key: GoConstants.goPlaySession, data: session)
+                    AuthManager.shared.postEventLogin(sesion: session)
+                }else{
+                    AlertDialog.instance.show(message:"Không đọc được Token")
+                }
+                
+
+            } else {
+                message = apiResponse.message
+                print("onLoginResponse fail onRequestSuccess userName: \(message)")
+                AlertDialog.instance.show(message:apiResponse.message)
+            }
+
+            
+
+        } catch {
+            print(" errpr \(error)")
+            AlertDialog.instance.show(message:error.localizedDescription)
+        }
+    }
+    
 }
 

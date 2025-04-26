@@ -8,7 +8,7 @@
 import Combine
 
 // Generic ViewModel with a @Published property
-class GoPlayViewModel<T>: ObservableObject {
+public class GoPlayViewModel<T>: ObservableObject {
     @Published var data: T
 
     init(data: T) {

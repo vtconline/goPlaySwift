@@ -10,19 +10,20 @@ import Foundation
 
 // Conforming to Sendable if needed (for concurrency)
 @MainActor
-class GenericObserver{
-    private var cancellables: [ObjectIdentifier: AnyCancellable] = [:]  // Dictionary to track subscriptions
-    private let lock = DispatchQueue(label: "com.yourapp.GenericObserver")
+public class GenericObserver{
+//    private var cancellables: [ObjectIdentifier: AnyCancellable] = [:]  // Dictionary to track subscriptions
+    private var cancellables: [AnyHashable: AnyCancellable] = [:]
+    let loginResultPublisher = PassthroughSubject<LoginResult, Never>()
 
 
     // Singleton instance
-     static let shared = GenericObserver()
+    public static let shared = GenericObserver()
 
     // Private initializer to enforce Singleton usage
     private init() {}
 
     // Function to observe changes to the entire data of a GoPlayViewModel
-    func observe<T>(viewModel: GoPlayViewModel<T>, onChange: @escaping (T) async-> Void) {
+    public func observe<T>(viewModel: GoPlayViewModel<T>, onChange: @escaping (T) async-> Void) {
         
         let cancellable = viewModel.$data
 //            .sink(receiveValue: onChange)
@@ -44,7 +45,7 @@ class GenericObserver{
         
     }
     
-    func observeProperty<T, U>(
+    public func observeProperty<T, U>(
         viewModel: GoPlayViewModel<T>,
         keyPath: KeyPath<T, U>,
         onChange: @escaping (U) -> Void
@@ -61,6 +62,42 @@ class GenericObserver{
 //        }
         
     }
+    /* must manual-canceled subscription when not use*/
+    public func observePublisher<T>(
+            publisher: AnyPublisher<T, Never>,
+            id: AnyHashable,
+            onChange: @escaping (T) -> Void
+        ) {
+            let cancellable = publisher
+                .sink(receiveValue: onChange)
+
+            cancellables[ObjectIdentifierWrapper(id)] = cancellable
+        }
+    /* Auto-canceled subscription  after get data 1st time*/
+    public func observePublisherOnce<T>(
+            publisher: AnyPublisher<T, Never>,
+            id: AnyHashable,
+            onChange: @escaping (T) -> Void
+        ) {
+            var cancellable: AnyCancellable? = nil
+            
+            cancellable = publisher.sink { [weak self] value in
+                onChange(value)
+                
+                // Cancel and remove after first event
+                if let self = self, let cancellable = cancellable {
+                    self.cancellables[id]?.cancel()
+                    self.cancellables.removeValue(forKey: id)
+                    //print("Auto-canceled subscription for \(id)")
+                }
+            }
+            
+            if let cancellable = cancellable {
+                cancellables[id] = cancellable
+            }
+        }
+    
+    
 
 
     // Function to observe a specific property of GoPlayViewModel using KeyPath
@@ -73,12 +110,12 @@ class GenericObserver{
 //    }
 
     // Function to cancel subscription for a specific ViewModel
-    func cancelSubscription<T>(for viewModel: GoPlayViewModel<T>?) {
-        if(viewModel == nil) {return}
-        let id = ObjectIdentifier(viewModel!)
+    public func cancelSubscription<T>(for viewModel: GoPlayViewModel<T>?) {
+        guard let viewModel else { return }
+        let id = ObjectIdentifier(viewModel)
         cancellables[id]?.cancel()  // Cancel the subscription for the specific ViewModel
         cancellables.removeValue(forKey: id)  // Remove the cancellable from the dictionary
-        print("Subscription canceled for \(viewModel!)")
+        print("Subscription canceled for \(viewModel)")
 //        lock.sync {
 //            cancellables[id]?.cancel()  // Cancel the subscription for the specific ViewModel
 //            cancellables.removeValue(forKey: id)  // Remove the cancellable from the dictionary
@@ -86,9 +123,15 @@ class GenericObserver{
 //        }
         
     }
+    
+    public func cancelSubscriptionByID(for id: AnyHashable) {
+            cancellables[id]?.cancel()
+            cancellables.removeValue(forKey: id)
+            print("Subscription canceled for \(id)")
+        }
 
     // Function to cancel all subscriptions
-    func cancelAll() {
+    public func cancelAll() {
         cancellables.forEach { $0.value.cancel() }  // Cancel all subscriptions
         cancellables.removeAll()  // Remove all entries from the dictionary
         print("All subscriptions canceled.")
@@ -99,8 +142,33 @@ class GenericObserver{
 //        }
         
     }
+    
+    // Helper to make AnyHashable act like ObjectIdentifier
+    private struct ObjectIdentifierWrapper: Hashable {
+        let id: AnyHashable
+
+        init(_ id: AnyHashable) {
+            self.id = id
+        }
+    }
 }
 
+/*
+ Usage1:
+ GenericObserver.shared.observePublisher(
+     publisher: AuthManager.shared.loginResultPublisher.eraseToAnyPublisher(),
+     id: "loginResult"
+ ) { result in
+     switch result {
+     case .success(let user):
+         print("Login succeeded for user: \(user.userName ?? "")")
+         // Handle successful login
+     case .failure(let error):
+         print("Login failed with error: \(error)")
+         // Handle login error
+     }
+ }
+ */
 
 
 /* USAGE: example

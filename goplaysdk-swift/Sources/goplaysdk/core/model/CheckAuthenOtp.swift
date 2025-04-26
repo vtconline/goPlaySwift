@@ -22,6 +22,21 @@ public struct CheckAuthenOtp: Codable {
         case tokenExpired = "token_expired"
         case nextStep
     }
+    
+    public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.userCount = try container.decodeIfPresent(Int.self, forKey: .userCount) ?? 0
+            self.loginType = try container.decodeIfPresent(Int.self, forKey: .loginType) ?? LoginType.phone.rawValue
+            self.code = try container.decodeIfPresent(Int.self, forKey: .code) ?? 0
+            self.message = try container.decodeIfPresent(String.self, forKey: .message) ?? ""
+            self.data = try container.decodeIfPresent([CheckAuthenUserInfo].self, forKey: .data) ?? []
+            self.isSuccessed = try container.decodeIfPresent(Bool.self, forKey: .isSuccessed) ?? true
+            self.haveError = try container.decodeIfPresent(Bool.self, forKey: .haveError) ?? false
+            self.redirectUrl = try container.decodeIfPresent(String.self, forKey: .redirectUrl)
+            self.tokenExpired = try container.decodeIfPresent(Bool.self, forKey: .tokenExpired) ?? false
+            self.nextStep = try container.decodeIfPresent(Int.self, forKey: .nextStep) ?? 0
+        }
 }
 
 public struct CheckAuthenUserInfo: Codable {

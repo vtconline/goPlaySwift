@@ -12,6 +12,8 @@ public struct GoIdAuthenView: View {
     // Accessing the presentation mode to dismiss the view
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var navigationManager = NavigationManager()
     
     @State private var username = ""  // Store the username
     @State private var password = ""  // Store the password
@@ -105,6 +107,8 @@ public struct GoIdAuthenView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) //topLeading
         .background(Color.white)
         .observeOrientation()
+        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
+        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
         .navigationTitle("Đăng nhập GoID")
         //                .navigationBarBackButtonHidden(false) // Show back button (default)
         

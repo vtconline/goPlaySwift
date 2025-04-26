@@ -1,71 +1,187 @@
-//
-//  ApiService.swift
-//  goplaysdk
-//
-//  Created by Ngô Đồng on 23/4/25.
-//
-
-// ApiService.swift
-
 import Foundation
+import CryptoKit
+import JWTKit
+
 @MainActor
 class ApiService {
-    // Step 1: Base URL constant
-    private let baseURL = "https://api.example.com"
+    private var baseURL = GoApi.apiProduct
     
-    // Step 2: Shared instance for singleton pattern
+    private let clientId: String = "29658d7cd198458a" // Au2  2025==>29658d7cd198458a  2020:2356aa1f65af420c
+    private let clientSecret: String = "63/k6+G2LQVrFUOUOMvPzhz2scuwlBSrPMq+8UpMBRfTuWVGL+Aa2Q5i7rLzIy20" // 2025==>63/k6+G2LQVrFUOUOMvPzhz2scuwlBSrPMq+8UpMBRfTuWVGL+Aa2Q5i7rLzIy20  2024 ==>SwlDJHfkE8F8ldQr9wzwDF6jTMRG6+/5
+    
+    // Signs and verifies JWTs
+    let keys = JWTKeyCollection()
+    
     static let shared = ApiService()
+    private init()  {
+        
+    }
     
-    // Step 3: Private initializer to prevent instantiation
-    private init() {}
+    private var isInitialized = false  // Flag to check if initialization is done
+    // This async function will handle the initialization.
+    func initJwtIfNeeded() async {
+        guard !isInitialized else { return }  // Only run this once
+        
+        isInitialized = true
+        print("Initializing JWT keys...")
+        
+        // Perform your async JWT setup here
+        await keys.add(hmac: HMACKey(from: Data(clientSecret.utf8)), digestAlgorithm: .sha256)
+        // Optionally, add other keys with different configurations
+        // await keys.add(hmac: "secret", digestAlgorithm: .sha256, kid: "my-key")
+        
+        print("JWT initialization complete.")
+    }
     
-    // Step 4: Generic function for GET and POST requests
-    func request(
-        method: String, // GET or POST
-        path: String,   // Specific API endpoint path
-        body: [String: Any]? = nil, // Optional request body for POST requests
-        completion: @escaping (Result<Data, Error>) -> Void // Completion callback
-    ) {
-        // Construct the full URL by appending the path to the base URL
+    
+    // Add your token retrieval logic here
+    private var bearerToken: String? {
+        // For example, from UserDefaults or Keychain
+        return nil
+    }
+    
+    func setBaseURL(_ newBaseURL: String) {
+        self.baseURL = newBaseURL
+    }
+    
+    // MARK: - Public GET Request
+    func get(path: String, sign: Bool = true, completion: @escaping (Result<Data, Error>) -> Void) async {
+        await request(method: "GET", path: path, sign: sign, completion: completion)
+    }
+    
+    // MARK: - Public POST Request
+    func post(path: String, body: [String: Any], sign: Bool = true, completion: @escaping (Result<Data, Error>) -> Void) async {
+        await request(method: "POST", path: path, body: body, sign: sign, completion: completion)
+    }
+    
+    // MARK: - Private Core Request Method
+    private func request(
+        method: String,
+        path: String,
+        body: [String: Any]? = nil,
+        sign: Bool = false,
+        completion: @escaping (Result<Data, Error>) -> Void
+    ) async {
         guard let url = URL(string: "\(baseURL)\(path)") else {
             print("Invalid URL")
             return
         }
+        print("url URL \(url)")
+        // Ensure JWT is initialized before making the request
+        await initJwtIfNeeded()
         
-        // Create a URLRequest
         var request = URLRequest(url: url)
         request.httpMethod = method
         
-        // If the method is POST and we have a body, encode it
-        if method == "POST", let bodyData = body {
+        var bodyParams : [String: Any] = [:]
+        
+        if method == "POST", var requestBody = body {
+            if sign {
+                bodyParams["jwt"] = await generateSignature(data: requestBody) ?? ""
+            }else{
+                bodyParams = requestBody
+            }
+            
+            if let token = bearerToken {
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            }
+            
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             do {
-                let jsonData = try JSONSerialization.data(withJSONObject: bodyData, options: [])
+                let jsonData = try JSONSerialization.data(withJSONObject: bodyParams, options: [])
                 request.httpBody = jsonData
             } catch {
-                print("Error encoding body data: \(error)")
+                completion(.failure(error))
                 return
             }
         }
         
-        // Step 5: Make the network request using URLSession
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
             
-            // Check if data is available and return it
             if let data = data {
                 completion(.success(data))
             } else {
-                // Handle case where no data is returned
                 let error = NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data returned"])
                 completion(.failure(error))
             }
         }
         
-        // Start the network request
         task.resume()
+    }
+    
+    // MARK: - Helper: Generate Signature
+    
+    // Define the JWT payload outside the function to avoid redefining
+    struct MyPayload: JWTPayload {
+        func verify(using algorithm: some JWTKit.JWTAlgorithm) async throws {
+            
+        }
+        
+        var jti: String
+        var iss: String
+        var nbf: Int
+        var exp: Int
+        var sid: Int
+        var jdt: String
+        
+        //        func verify(using signer: JWTSigner) throws {
+        //            // Optional: Verify expiration or not-before if needed
+        //        }
+    }
+    
+    struct ExamplePayload: JWTPayload {
+        var sub: SubjectClaim
+        var exp: ExpirationClaim
+        var admin: BoolClaim
+        
+        func verify(using key: some JWTAlgorithm) throws {
+            try self.exp.verifyNotExpired()
+        }
+    }
+    
+    func generateSignature( data: Any) async -> String?{
+        let jti = Int64(Date().timeIntervalSince1970 * 1000)
+        let nbf = jti / 1000
+        let exp = nbf + 60
+        
+        
+        do {
+            
+            
+            // Serialize data to a JSON string, or fallback to description
+            let jsonData: String
+            if let json = try? JSONSerialization.data(withJSONObject: data),
+               let jsonStr = String(data: json, encoding: .utf8) {
+                jsonData = jsonStr
+            } else {
+                jsonData = String(describing: data)
+            }
+            
+            // Create JWT payload
+            let payload = MyPayload(
+                jti: String(jti),
+                iss: clientId,
+                nbf: Int(nbf),
+                exp: Int(exp),
+                sid: 0,
+                jdt: jsonData
+            )
+            
+            // Sign JWT
+            // Sign the payload, returning the JWT as String
+            let jwt = try await keys.sign(payload)//, kid: "my-key"
+            print("jwt \(jwt)")
+            
+            return jwt
+            
+        } catch {
+            print(error)
+            
+        }
+        return nil
     }
 }

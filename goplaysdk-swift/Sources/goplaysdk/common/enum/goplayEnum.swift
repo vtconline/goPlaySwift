@@ -1,9 +1,28 @@
-//
-//  goplayEnum.swift
-//  goplaysdk
-//
-//  Created by Ngô Đồng on 17/4/25.
-//
+enum AccountType: Int {
+    case goId = 1
+    case guest = 21
+    case emailAndPhoneActive = 5
+    case google = 31
+    case fb = 51
+    case apple = 61
+    case phone = 71
+    case email = 81
+    case unknown = -99
+
+    static func from(_ value: Int) -> AccountType {
+        return AccountType(rawValue: value) ?? .unknown
+    }
+}
+enum ConfirmCode: Int {
+    case emailActive = 1
+    case phoneActive = 2
+    case emailAndPhoneActive = 5
+    case unknown = -99
+
+    static func from(_ value: Int) -> ConfirmCode {
+        return ConfirmCode(rawValue: value) ?? .unknown
+    }
+}
 
 enum Suit {
     case spades, hearts, diamonds, clubs

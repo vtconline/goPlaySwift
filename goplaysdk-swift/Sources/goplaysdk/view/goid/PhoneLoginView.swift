@@ -3,6 +3,8 @@ import SwiftUI
 public struct PhoneLoginView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var navigationManager = NavigationManager()
     
     @State private var phoneNumber = ""  // Store the phone number
     @State private var otp = ""  // Store the OTP
@@ -14,7 +16,8 @@ public struct PhoneLoginView: View {
     @StateObject private var phoneNumberValidator = PhoneValidator()  // Validator for phone number
     @StateObject private var otpValidator = OTPValidator()  // Validator for OTP
     
-    @State private var checkPhoneDone = true
+    @State private var checkPhoneDone = false
+    
     
     public init() {}
     var spaceOriented: CGFloat {
@@ -85,6 +88,8 @@ public struct PhoneLoginView: View {
         }
         .padding()
         .observeOrientation() // Apply the modifier to detect orientation changes
+        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
+        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
         //        .navigationBarHidden(true) // hide navigaotr bar at top
         .navigationTitle("Đăng nhập với SĐT")
         //                .navigationBarBackButtonHidden(false) // Show back button (default)
@@ -245,20 +250,55 @@ public struct PhoneLoginView: View {
     
     // Function to submit phone number and OTP for verification
     private func submitPhoneLogin() {
-        //        guard !phoneNumber.isEmpty, !otp.isEmpty else {
-        //            alertMessage = "Please enter both phone number and OTP."
-        //            return
-        //        }
-        
+                guard !phoneNumber.isEmpty else {
+                    alertMessage = "Vui lòng nhập SĐT"
+                    AlertDialog.instance.show(message: alertMessage)
+                    return
+                }
+        let validation = phoneNumberValidator.validate(text: phoneNumber);
+        if(validation.isValid == false){
+            return
+        }
         LoadingDialog.instance.show();
         isLoading = true
         
         // Call API for phone number and OTP verification (dummy code, replace with actual API)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            isLoading = false
-            alertMessage = "Phone number and OTP verified. Logging in..."
-            // Continue with login process
-            LoadingDialog.instance.hide();
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//            isLoading = false
+//            alertMessage = "Phone number and OTP verified. Logging in..."
+//            // Continue with login process
+//            LoadingDialog.instance.hide();
+//        }
+        // This would be a sample data payload to send in the POST request
+        let bodyData: [String: Any] = [
+            "otpname": phoneNumber,
+            "loginType": LoginType.phone.rawValue
+        ]
+
+        // Now, you can call the `post` method on ApiService
+        Task {
+            await ApiService.shared.post(path: GoApi.oauthCheckAuthenOtp, body: bodyData) { result in
+                        DispatchQueue.main.async {
+                         
+                            LoadingDialog.instance.hide();
+                        }
+                
+                switch result {
+                case .success(let data):
+                    // Handle successful response
+
+                    // Parse the response if necessary
+                    if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
+                       let responseDict = jsonResponse as? [String: Any] {
+//                        print("submitPhoneLogin Response: \(responseDict)")
+                        checkPhoneNumberResponse(response: responseDict)
+                    }
+                    
+                case .failure(let error):
+                    // Handle failure response
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
         }
     }
     private func loginGuest() {
@@ -275,5 +315,88 @@ public struct PhoneLoginView: View {
     private func loginWithApple() {
         // Trigger Apple login logic here
         alertMessage = "Login with Apple triggered."
+    }
+    
+    
+    func checkPhoneNumberResponse(response: [String: Any]) {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: response, options: [])
+            let apiResponse =  try JSONDecoder().decode(CheckAuthenOtp.self, from: jsonData)
+            
+
+//            print("apiResponse isSuccessed: \(apiResponse.isSuccessed)")
+
+            var message = "Lỗi sđt"
+            var haveError = true
+
+            if apiResponse.isSuccessed {
+                
+                let listUser = apiResponse.data
+
+                if !listUser.isEmpty {
+                    haveError = false
+
+                    if listUser.count == 1 {
+                        let userInfo = listUser[0]
+                        print("userInfo.accountType = \(userInfo.accountType)")
+
+                        if userInfo.accountType == AccountType.goId.rawValue {
+                            var msg = "SĐT \(userInfo.mobile) khai báo cho tài khoản \(userInfo.accountName). Hãy đăng nhập bằng tài khoản và mật khẩu goID!"
+                            if userInfo.confirmCode == ConfirmCode.emailActive.rawValue || userInfo.confirmCode == ConfirmCode.emailAndPhoneActive.rawValue {
+                                msg = "SĐT \(userInfo.mobile) đã kích hoạt cho tài khoản \(userInfo.accountName). Hãy đăng nhập bằng mật khẩu goID!"
+                            }
+                            AlertDialog.instance.show(message: msg, onOk: {
+                                print("User navigateToGoIDView confirmed")
+                                navigationManager.navigate(to: NavigationDestination.goIdAuthenView)
+                            })//,navigatorView:GoIdAuthenView()
+
+                            /*DialogManager.showPositiveDialog(
+                                context: mContext,
+                                title: "Thông báo",
+                                message: msg
+                            ) { dialog in
+                                dialog.dismiss(animated: true)
+                                self.showLoginType(.phone)
+                            }*/
+
+                        } else {
+//                            self.otpView.isHidden = false
+//                            self.btnLoginPhone.isHidden = true
+                        }
+                    } else {
+                        let msg = "Bạn có \(apiResponse.userCount) tài khoản kích hoạt bằng SĐT \(listUser.first?.mobile ?? ""). Hãy đăng nhập bằng tài khoản và mật khẩu goID!"
+                  
+                        AlertDialog.instance.show(message: msg)
+
+//                        DialogManager.showPositiveDialog(
+//                            context: mContext,
+//                            title: "Thông báo",
+//                            message: msg
+//                        ) { dialog in
+//                            dialog.dismiss(animated: true)
+//                        }
+                    }
+                } else {
+                    // Chưa có tài khoản nào gắn với số điện thoại
+//                    self.otpView.isHidden = false
+                }
+            } else {
+                message = apiResponse.message
+            }
+
+            if haveError {
+                AlertDialog.instance.show(message: message)
+//                DialogManager.showPositiveDialog(
+//                    context: mContext,
+//                    title: NSLocalizedString("title_login_err", comment: ""),
+//                    message: message
+//                ) { dialog in
+//                    dialog.dismiss(animated: true)
+//                }
+            }
+
+        } catch {
+            print("Parsing or network error: \(error.localizedDescription)")
+        }
     }
 }

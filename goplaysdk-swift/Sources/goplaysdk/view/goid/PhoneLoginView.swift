@@ -93,11 +93,8 @@ public struct PhoneLoginView: View {
             .padding(.horizontal, 32)
             
             
+            SocialLoginGroupView(haveGoIdLogin: true)
             
-            
-            
-            // Login with Gmail Button
-            ResponsiveView(portraitView: socialViewPortraid(), landscapeView: socialViewLandscape())
             
             
             Spacer()
@@ -127,123 +124,7 @@ public struct PhoneLoginView: View {
         
     }
     
-    func socialViewPortraid() -> some View {
-        VStack(spacing: spaceOriented) {
-            GoNavigationLink(
-                text: "ĐĂNG NHẬP GOID",
-                destination: GoIdAuthenView(),
-                assetImageName: "images/logo_goplay",
-                
-                imageSize: CGSize(width: 28, height: 28),
-                font: .system(size: 16, weight: .semibold),
-                textColor: .white,
-                backgroundColor: AppTheme.Colors.secondary
-            )
-            GoButton(
-                text: "Login with Google",
-                color: .white,
-                borderColor: .gray.opacity(0.75),
-                textColor: .black,
-                
-                iconName: "images/google_icon",
-                isSystemIcon: false,
-                iconSize: 24,
-                action: loginWithGmail
-            )
-            
-            GoButton(
-                text: "Login with Apple",
-                color: AppTheme.Colors.apple,
-                textColor: .white,
-                iconSysColor: .white,
-                iconName: "apple.logo",
-                iconPadding: EdgeInsets(top: 0, leading: 0, bottom: 6, trailing: 0),
-                action: loginWithGmail
-            )
-            
-            GoButton(
-                text: "Login nhanh",
-                color: .white,
-                borderColor:.gray,
-                textColor: .black,
-                iconSysColor: .black,
-                
-                iconName: "person",
-                action: loginGuest
-            )
-            
-            
-        }
-        .padding(.vertical,0)
-        .padding(.horizontal,0)
-        
-    }
     
-    func socialViewLandscape() -> some View {
-        HStack {
-            Spacer()
-            GoNavigationLink(
-                text: "",
-                destination: GoIdAuthenView(),
-                assetImageName: "images/logo_goplay",
-                width: 60,
-                imageSize: CGSize(width: 24, height: 24),
-                font: .system(size: 16, weight: .semibold),
-                textColor: .white,
-                backgroundColor: AppTheme.Colors.secondary
-            )
-            GoButton(
-                text: "",
-                color: .white,
-                borderColor: .black,
-                textColor: .black,
-                width: 60,
-                iconName: "images/google_icon",
-                isSystemIcon: false,
-                iconSize: 24,
-                action: loginWithGmail
-            )
-            
-            GoButton(
-                text: "",
-                color: AppTheme.Colors.apple,
-                textColor: .white,
-                iconSysColor: .white,
-                width: 60,
-                iconName: "apple.logo",
-                iconPadding: EdgeInsets(top: 0, leading: 0, bottom: 6, trailing: 0),
-                action: loginWithGmail
-            )
-            GoButton(
-                color: .white,
-                borderColor: .black,
-                width: 60,
-                action: loginGuest
-                
-            ){
-                ZStack {
-                    Image(systemName: "person")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(.black)
-                    
-                    VStack {
-                        Spacer()
-                        Text("Guest")
-                            .font(.caption)
-                            .foregroundColor(.black)
-                        //                            .bold()
-                            .shadow(radius: 1)
-                            .padding(.top, 22)
-                    }
-                    .frame(width: 40,height: 24)
-                }
-                
-            }
-            Spacer()
-        }
-        
-    }
     
 
     private func submitGetOtp() {
@@ -377,21 +258,6 @@ public struct PhoneLoginView: View {
         }
     }
     
-    private func loginGuest() {
-        // Trigger Gmail login logic here
-        alertMessage = "loginGuest triggered."
-    }
-    // Function for Gmail login (dummy)
-    private func loginWithGmail() {
-        // Trigger Gmail login logic here
-        alertMessage = "Login with Gmail triggered."
-    }
-    
-    // Function for Apple login (dummy)
-    private func loginWithApple() {
-        // Trigger Apple login logic here
-        alertMessage = "Login with Apple triggered."
-    }
     
    
     func checkOtpResponse(response: [String: Any]) {
@@ -405,7 +271,7 @@ public struct PhoneLoginView: View {
             if apiResponse.isSuccess() {
                 
                 print("checkOtpResponse onRequestSuccess data: \(apiResponse.data ?? 0)")
-                let timeCountDown = apiResponse.data
+                let timeCountDown = apiResponse.data!
                 if timeCountDown > 0 {
                     haveError = false
                    isButtonOtpDisabled = true
@@ -451,14 +317,17 @@ public struct PhoneLoginView: View {
 
             if apiResponse.isSuccess() {
                 
-                print("onLoginResponse onRequestSuccess userName: \(apiResponse.data.accessToken)")
-                let tokenData : TokenData = apiResponse.data
-                if let session = GoPlaySession.deserialize(data: tokenData) {
-                    KeychainHelper.save(key: GoConstants.goPlaySession, data: session)
-                    AuthManager.shared.postEventLogin(sesion: session)
-                }else{
-                    AlertDialog.instance.show(message:"Không đọc được Token")
+                print("onLoginResponse onRequestSuccess userName: \(apiResponse.data?.accessToken ?? "")")
+                if(apiResponse.data != nil){
+                    let tokenData : TokenData = apiResponse.data!
+                    if let session = GoPlaySession.deserialize(data: tokenData) {
+                        KeychainHelper.save(key: GoConstants.goPlaySession, data: session)
+                        AuthManager.shared.postEventLogin(sesion: session)
+                    }else{
+                        AlertDialog.instance.show(message:"Không đọc được Token")
+                    }
                 }
+                
                 
 
             } else {

@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUICore
 import CommonCrypto
+import CryptoKit
+
 public class Utils {
     @discardableResult
     static func startCountdown(
@@ -39,7 +41,10 @@ public class Utils {
 
         return params
     }
-    
+    static func md5(_ string: String) -> String {
+        let digest = Insecure.MD5.hash(data: Data(string.utf8))
+        return digest.map { String(format: "%02hhx", $0) }.joined()
+    }
     static func generateHashMD5(input: String?) -> String? {
         guard let input = input else { return nil }
 

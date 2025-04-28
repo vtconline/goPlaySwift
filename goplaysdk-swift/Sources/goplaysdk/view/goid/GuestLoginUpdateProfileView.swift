@@ -1,11 +1,13 @@
-
-
 import SwiftUI
 
-public struct RegisterView: View {
+public struct GuestLoginUpdateProfileView: View {
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dismiss) private var dismiss
+    
+    private let onBack: () -> Void
+    
+    
+    
     @StateObject private var navigationManager = NavigationManager()
     
     @State private var userName = ""
@@ -21,7 +23,9 @@ public struct RegisterView: View {
     
     
     
-    public init() {}
+    public init(onBack: @escaping () -> Void = {}) {
+        self.onBack = onBack
+    }
     var spaceOriented: CGFloat {
         // Dynamically set space based on the device orientation
         return DeviceOrientation.shared.isLandscape ? 10 : 10
@@ -31,7 +35,10 @@ public struct RegisterView: View {
     public var body: some View {
         
         VStack(alignment: .center, spacing: spaceOriented) {
-           
+            Text("Bạn đang dùng tài khoản chơi ngay. Bạn nên thay đổi tên đăng nhập để có thể sử dụng lần sau")
+                .font(.system(size: 16))
+                .padding(.vertical, 12)
+            
             GoTextField<UsernameValidator>(text: $userName, placeholder: "Nhập tài khoản", isPwd: false, validator: userNameValidator, leftIconName: "images/ic_user_focused", isSystemIcon: false)
                 .keyboardType(.phonePad)
                 .padding(.horizontal, 16)
@@ -41,15 +48,16 @@ public struct RegisterView: View {
                 .keyboardType(.phonePad)
                 .padding(.horizontal, 16)
             
-            GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Số ĐT", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
+            /*GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Số ĐT", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
                 .keyboardType(.phonePad)
                 .padding(.horizontal, 16)
             
             GoTextField<EmailValidator>(text: $email, placeholder: "Email", isPwd: false, validator: emailValidator, leftIconName: "images/ic_email", isSystemIcon: false)
                 .keyboardType(.phonePad)
                 .padding(.horizontal, 16)
+             */
             
-            GoButton(text:"ĐĂNG KÝ", action: submitLoginPhone)
+            GoButton(text:"CẬP NHẬT", action: requestUpdate)
             
             
             Spacer()
@@ -57,15 +65,15 @@ public struct RegisterView: View {
         .padding()
         .observeOrientation() // Apply the modifier to detect orientation changes
         .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
-        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
         //        .navigationBarHidden(true) // hide navigaotr bar at top
-        .navigationTitle("Đăng ký GOID")
+        .navigationTitle("Chơi ngay")
         //                .navigationBarBackButtonHidden(false) // Show back button (default)
         
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
+                    onBack()
                     dismiss()
                 }) {
                     HStack {
@@ -84,7 +92,7 @@ public struct RegisterView: View {
     
     
     
-    private func submitLoginPhone() {
+    private func requestUpdate() {
                 guard !userName.isEmpty, !passWord.isEmpty else {
                     AlertDialog.instance.show(message: "Vui lòng nhập tài khoản và mật khẩu")
                     return
@@ -99,29 +107,24 @@ public struct RegisterView: View {
        
         // This would be a sample data payload to send in the POST request
         var bodyData: [String: Any] = [
-            "username": userName,
+            "oldAccountName": KeychainHelper.loadCurrentSession()?.userName ?? "",
+            "newAccountName": userName,
             "password": passWord,
+            "passwordmd5": Utils.md5(passWord),
         ]
-        if(!phoneNumber.isEmpty){
-            let phoneValidation = phoneNumberValidator.validate(text: phoneNumber);
-            if(phoneValidation.isValid == false ){
-                
-                return
-            }
-            bodyData["mobile"] = phoneNumber
-        }
+   
         if(!email.isEmpty){
             let emailValidation = emailValidator.validate(text: email);
             if(emailValidation.isValid == false ){
                 return
             }
-            bodyData["email"] = email
+            bodyData["Email"] = email
         }
         
 
         // Now, you can call the `post` method on ApiService
         Task {
-            await ApiService.shared.post(path: GoApi.oauthRegister, body: bodyData) { result in
+            await ApiService.shared.post(path: GoApi.userRename, body: bodyData, sign: false) { result in
                         DispatchQueue.main.async {
                          
                             LoadingDialog.instance.hide();
@@ -134,8 +137,8 @@ public struct RegisterView: View {
                     // Parse the response if necessary
                     if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
                        let responseDict = jsonResponse as? [String: Any] {
-                        print("submitLoginPhone Response: \(responseDict)")
-                        onRegisterResponse(response: responseDict)
+                        print("requestUpdate Response: \(responseDict)")
+                        onUpdateInfoResponse(response: responseDict)
                     }
                     
                 case .failure(let error):
@@ -151,7 +154,7 @@ public struct RegisterView: View {
     
    
     
-    func onRegisterResponse(response: [String: Any]) {
+    func onUpdateInfoResponse(response: [String: Any]) {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: response, options: [])
             let apiResponse =  try JSONDecoder().decode(GoPlayApiResponse<TokenData>.self, from: jsonData)
@@ -161,7 +164,7 @@ public struct RegisterView: View {
 
             if apiResponse.isSuccess() {
                 
-                print("onRegisterResponse onRequestSuccess userName: \(apiResponse.data?.accessToken ?? "")")
+                print("onUpdateInfoResponse onRequestSuccess userName: \(apiResponse.data?.accessToken ?? "")")
                 guard apiResponse.data != nil else {
                     AlertDialog.instance.show(message:"Không đọc được TokenData")
                     return
@@ -190,4 +193,5 @@ public struct RegisterView: View {
     
     
 }
+
 

@@ -1,4 +1,4 @@
-enum AccountType: Int {
+public enum AccountType: Int {
     case goId = 1
     case guest = 21
     case emailAndPhoneActive = 5
@@ -13,7 +13,7 @@ enum AccountType: Int {
         return AccountType(rawValue: value) ?? .unknown
     }
 }
-enum ConfirmCode: Int {
+public enum ConfirmCode: Int {
     case emailActive = 1
     case phoneActive = 2
     case emailAndPhoneActive = 5

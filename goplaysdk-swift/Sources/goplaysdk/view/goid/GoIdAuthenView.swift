@@ -23,14 +23,20 @@ public struct GoIdAuthenView: View {
     
     
     @State private var rememberMe = true  // 🔐 Toggle for remembering credentials
+    @State private var isShowingSafari = false
     
     @StateObject private var usernameValidator = UsernameValidator()
     @StateObject private var pwdValidator = PasswordValidator()
     
     public init() {}
     
+    var spaceOriented: CGFloat {
+        // Dynamically set space based on the device orientation
+        return DeviceOrientation.shared.isLandscape ? 5 : 10
+    }
+    
     public var body: some View {
-        VStack(alignment: .center, spacing: 20 ) {
+        VStack(alignment: .center, spacing: spaceOriented ) {
            
             GoTextField<UsernameValidator>(text: $username, placeholder:"Tên đăng nhập", isPwd: false, validator: usernameValidator,leftIconName: "images/ic_user_focused",  // This should be the name of your image in Resources/Images
                                            isSystemIcon: false,
@@ -69,14 +75,28 @@ public struct GoIdAuthenView: View {
                 }
                 
                 // Forgot Password Button using NavigationLink
-                NavigationLink(destination: ForgotPasswordView()) {
+//                NavigationLink(destination: ForgotPasswordView()) {
+//                    Text("Quên mật khẩu?")
+//                        .foregroundColor(.blue)  // Text color for the text button
+//                        .padding(.horizontal, 10) // Horizontal padding for the button
+//                }
+                
+                GoButton( color: .white, padding: EdgeInsets(), useDefaultWidth: false,action:{
+                    isShowingSafari = true
+                }){
                     Text("Quên mật khẩu?")
-                        .foregroundColor(.blue)  // Text color for the text button
-                        .padding(.horizontal, 10) // Horizontal padding for the button
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 10)
+                }
+                .sheet(isPresented: $isShowingSafari) {
+                    SafariView(url: URL(string:GoConstants.urlForgotPassword)!)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)  // Center the buttons horizontally
-            .padding(.top, 10) // Space between login and buttons in row
+            .padding(.top, spaceOriented) // Space between login and buttons in row
+            .padding(.bottom, spaceOriented)
+            
+            SocialLoginGroupView(haveGoIdLogin: false)
             
         }
         .padding()
@@ -157,6 +177,7 @@ public struct GoIdAuthenView: View {
                     if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
                        let responseDict = jsonResponse as? [String: Any] {
                         print("submitLoginGoId Response: \(responseDict)")
+//                        AlertDialog.instance.show(message:"Đăng nhâp thành công")
                         onLoginResponse(response: responseDict)
                     }
                     
@@ -179,14 +200,17 @@ public struct GoIdAuthenView: View {
 
             if apiResponse.isSuccess() {
                 
-                print("onLoginResponse onRequestSuccess userName: \(apiResponse.data.accessToken)")
-                let tokenData : TokenData = apiResponse.data
-                if let session = GoPlaySession.deserialize(data: tokenData) {
-                    KeychainHelper.save(key: GoConstants.goPlaySession, data: session)
-                    AuthManager.shared.postEventLogin(sesion: session)
-                }else{
-                    AlertDialog.instance.show(message:"Không đọc được Token")
+                print("onLoginResponse onRequestSuccess userName: \(apiResponse.data?.accessToken ?? "")")
+                if(apiResponse.data != nil){
+                    let tokenData : TokenData = apiResponse.data!
+                    if let session = GoPlaySession.deserialize(data: tokenData) {
+                        KeychainHelper.save(key: GoConstants.goPlaySession, data: session)
+                        AuthManager.shared.postEventLogin(sesion: session)
+                    }else{
+                        AlertDialog.instance.show(message:"Không đọc được Token")
+                    }
                 }
+                
                 
 
             } else {

@@ -4,10 +4,10 @@ import JWTKit
 
 @MainActor
 class ApiService {
-    private var baseURL = GoApi.apiProduct
+    private var baseURL = GoApi.apiProduct  //GoApi.apiProduct
     
-    private let clientId: String = "29658d7cd198458a" // Au2  2025==>29658d7cd198458a  2020:2356aa1f65af420c
-    private let clientSecret: String = "63/k6+G2LQVrFUOUOMvPzhz2scuwlBSrPMq+8UpMBRfTuWVGL+Aa2Q5i7rLzIy20" // 2025==>63/k6+G2LQVrFUOUOMvPzhz2scuwlBSrPMq+8UpMBRfTuWVGL+Aa2Q5i7rLzIy20  2024 ==>SwlDJHfkE8F8ldQr9wzwDF6jTMRG6+/5
+    public let clientId: String = "29658d7cd198458a" // Au2  2025==>29658d7cd198458a  2020:2356aa1f65af420c
+    public let clientSecret: String = "63/k6+G2LQVrFUOUOMvPzhz2scuwlBSrPMq+8UpMBRfTuWVGL+Aa2Q5i7rLzIy20" // 2025==>63/k6+G2LQVrFUOUOMvPzhz2scuwlBSrPMq+8UpMBRfTuWVGL+Aa2Q5i7rLzIy20  2024 ==>SwlDJHfkE8F8ldQr9wzwDF6jTMRG6+/5
     
     // Signs and verifies JWTs
     let keys = JWTKeyCollection()
@@ -50,7 +50,7 @@ class ApiService {
     }
     
     // MARK: - Public POST Request
-    func post(path: String, body: [String: Any], sign: Bool = true, completion: @escaping (Result<Data, Error>) -> Void) async {
+    func post(path: String, body: [String: Any], sign: Bool = true, useAcessToken:Bool = false, completion: @escaping (Result<Data, Error>) -> Void) async {
         await request(method: "POST", path: path, body: body, sign: sign, completion: completion)
     }
     
@@ -74,23 +74,28 @@ class ApiService {
         request.httpMethod = method
         
         var bodyParams : [String: Any] = [:]
-        // Append data from getPartnerParams to requestBody
         var bodyMerge: [String: Any]? = body  // Let's assume body is provided earlie
-        if var mergedBody = bodyMerge {
-            let partnerParams = Utils.getPartnerParams()
-            mergedBody = mergedBody.merging(partnerParams) { current, _ in current }
-
-            // Update the bodyMerge to the mergedBody
-            bodyMerge = mergedBody
-        }
         
         
         if method == "POST", var requestBody = bodyMerge {
             if sign {
+                // Append data from getPartnerParams to requestBody
+                
+                if var mergedBody = bodyMerge {
+                
+                    let partnerParams = Utils.getPartnerParams()
+                    mergedBody = mergedBody.merging(partnerParams) { current, _ in current }
+
+                    // Update the bodyMerge to the mergedBody
+                    bodyMerge = mergedBody
+                }
                 print("requestBody before jwt \(requestBody)")
                 bodyParams["jwt"] = await generateSignature(data: requestBody) ?? ""
-            }else{
-                bodyParams = requestBody
+            } else {
+                bodyParams["jwt"] = KeychainHelper.loadCurrentSession()?.accessToken ?? ""
+                bodyParams["cid"] = clientId
+                bodyParams["clientId"] = clientId //old version
+                bodyParams = bodyParams.merging(bodyMerge ?? [:]) { current, _ in current }
             }
             
             if let token = bearerToken {

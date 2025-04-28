@@ -33,8 +33,8 @@ public struct GoButton<Content: View>: View {
     let color: Color
     let borderColor: Color?
     let width: CGFloat?
-    //    let fontSize: CGFloat
-    //    let textColor: Color
+    let useDefaultWidth: Bool
+    let padding: EdgeInsets?
     let action: (() -> Void)?
     let content: () -> Content
     
@@ -43,19 +43,19 @@ public struct GoButton<Content: View>: View {
     public init(
         color: Color = AppTheme.Colors.primary,
         borderColor: Color? = nil,
-        //        textColor: Color = .white,
-        //        fontSize: CGFloat = 19,
+        padding: EdgeInsets? = nil,
         width: CGFloat? = nil,
+        useDefaultWidth: Bool = true,
         action: (() -> Void)? = nil,
         content: @escaping () -> Content
     ) {
         self.color = color
-        //        self.textColor = textColor
-        //        self.fontSize = fontSize
+        self.padding = padding
         self.width = width
         self.action = action
         self.content = content
         self.borderColor = borderColor
+        self.useDefaultWidth = useDefaultWidth
     }
     
     public var body: some View {
@@ -63,14 +63,13 @@ public struct GoButton<Content: View>: View {
             action?()
         }) {
             content()
-                .padding()
+                .padding(padding == nil ? EdgeInsets(top: 12, leading:12, bottom: 12, trailing: 12) : padding!)
                 .frame(
-                    maxWidth: width ?? min(
+                    maxWidth: width ?? (useDefaultWidth ? min(
                         UIScreen.main.bounds.width - 2 * paddingHorizontal,
                         300
-                    )
+                    ) : nil)
                 )
-            //                .foregroundColor(textColor)
                 .background(color)
                 .cornerRadius(10)
                 .overlay(
@@ -89,17 +88,19 @@ public extension GoButton where Content == AnyView {
         text: String,
         color: Color = AppTheme.Colors.primary,
         borderColor: Color? = nil,
+        padding: EdgeInsets? = nil,
         textColor: Color = .white,
         iconSysColor: Color = .white,
         fontSize: CGFloat = 19,
         width: CGFloat? = nil,
+        useDefaultWidth: Bool = true,
         iconName: String? = nil,
         isSystemIcon: Bool = true,
         iconSize:CGFloat = 19,
         iconPadding: EdgeInsets = EdgeInsets(),
         action: (() -> Void)? = nil
     ) {
-        self.init(color: color, borderColor: borderColor,width: width, action: action) {
+        self.init(color: color, borderColor: borderColor, padding: padding,width: width, useDefaultWidth: useDefaultWidth,action: action) {
             AnyView(
                 HStack {
                     if isSystemIcon {

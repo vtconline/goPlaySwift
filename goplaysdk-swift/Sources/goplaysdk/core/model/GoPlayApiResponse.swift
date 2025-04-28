@@ -1,9 +1,7 @@
-
-
 struct GoPlayApiResponse<T: Codable>: Codable {
     let code: Int
     let message: String
-    let data: T
+    let data: T?
 
     func isSuccess() -> Bool {
         return code == GoErrorCode.Authen.ok.rawValue
@@ -17,5 +15,3 @@ struct GoPlayApiResponse<T: Codable>: Codable {
         return code == GoErrorCode.Authen.expired.rawValue && message == "token_expired"
     }
 }
-
-

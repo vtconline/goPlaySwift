@@ -8,7 +8,18 @@
 import Foundation
 import Security
 class KeychainHelper {
-    
+    @MainActor static  var goPlaySession : GoPlaySession? = nil
+    @MainActor static func loadCurrentSession() -> GoPlaySession?{
+        if goPlaySession != nil {
+            return goPlaySession
+        }
+            if let loadedSession: GoPlaySession = KeychainHelper.load(key: GoConstants.goPlaySession, type: GoPlaySession.self) {
+                goPlaySession = loadedSession
+                return loadedSession
+            }
+        return nil
+    }
+
     // Save any Codable object to Keychain
     static func save<T: Codable>(key: String, data: T) {
         do {

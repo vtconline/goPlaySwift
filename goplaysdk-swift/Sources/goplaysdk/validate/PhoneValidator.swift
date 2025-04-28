@@ -20,7 +20,7 @@ class PhoneValidator: TextFieldValidator {
         errorMessage = ""
         guard text.count >= minLength && text.count <= maxLength else {
             isValid = false
-            errorMessage = "Mật khẩu phải dài từ \(minLength) đến \(maxLength) ký tự."
+            errorMessage = "Số điện thoại phải dài từ \(minLength) đến \(maxLength) ký tự."
             return (isValid, errorMessage)
         }
         guard text.hasPrefix("0") || text.hasPrefix("84") || text.hasPrefix("+84") else {

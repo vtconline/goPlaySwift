@@ -62,6 +62,7 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                         .padding(.vertical, 12)
                         .padding(.trailing, 12)
                         .autocorrectionDisabled(true)
+                        .autocapitalization(.none)
                         .keyboardType(.asciiCapable)
                         .background(UIViewRepresentableFocus(keyBoardFocused: $keyBoardFocused))
                 } else {
@@ -70,6 +71,7 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                         .padding(.vertical, 12)
                         .padding(.trailing, 12)
                         .autocorrectionDisabled(true)
+                        .autocapitalization(.none)
                         .keyboardType(.asciiCapable)
                         .background(UIViewRepresentableFocus(keyBoardFocused: $keyBoardFocused))
                 }

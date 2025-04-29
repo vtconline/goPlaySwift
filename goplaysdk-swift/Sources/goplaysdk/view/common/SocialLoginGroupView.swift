@@ -1,7 +1,10 @@
 
 import SwiftUI
+import AuthenticationServices
 //0394253555
 public struct SocialLoginGroupView: View {
+        @State private var authorizationController: ASAuthorizationController?
+    
     private var haveGoIdLogin: Bool = false
     public init(haveGoIdLogin: Bool ) {
         self.haveGoIdLogin = haveGoIdLogin
@@ -98,14 +101,8 @@ public struct SocialLoginGroupView: View {
                 action: loginWithGmail
             )
             
-            GoButton(
+            CustomAppleSignInButton(
                 text: "",
-                color: AppTheme.Colors.apple,
-                textColor: .white,
-                iconSysColor: .white,
-                width: 60,
-                iconName: "apple.logo",
-                iconPadding: EdgeInsets(top: 0, leading: 0, bottom: 6, trailing: 0),
                 action: loginWithApple
             )
             GoButton(
@@ -188,7 +185,16 @@ public struct SocialLoginGroupView: View {
     
     // Function for Apple login (dummy)
     private func loginWithApple() {
-        // Trigger Apple login logic here
+        let provider = ASAuthorizationAppleIDProvider()
+                let request = provider.createRequest()
+                request.requestedScopes = [.fullName, .email]
+
+                let controller = ASAuthorizationController(authorizationRequests: [request])
+                controller.delegate = SignInWithAppleDelegates.shared
+                controller.presentationContextProvider = SignInWithAppleDelegates.shared
+
+                self.authorizationController = controller // retain
+                controller.performRequests()
        
     }
     

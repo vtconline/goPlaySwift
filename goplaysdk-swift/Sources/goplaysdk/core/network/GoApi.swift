@@ -13,6 +13,7 @@ public enum GoApi {
     static let oauthGoogle = "authen-service/oauth/logingoogle"
     static let oauthFacebook = "authen-service/oauth/loginfacebook"
     static let oauthGuest = "authen-service/oauth/loginfast"
+    static let oauthApple = "authen-service/oauth/loginapple"
     static let getInfo = "authen-service/users/get/info"
     static let getUserInfo = "authen-service/users/get/userinfo"
     static let oauthToken = "authen-service/oauth/token"

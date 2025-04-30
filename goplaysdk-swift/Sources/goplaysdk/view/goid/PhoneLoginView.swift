@@ -33,7 +33,7 @@ public struct PhoneLoginView: View {
         VStack(alignment: .center, spacing: spaceOriented) {
             
             // Phone Number GoTextField
-            GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Nhập số điện thoại", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
+            GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Nhập số điện thoại", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false,keyboardType: .numberPad)
                 .keyboardType(.phonePad)
                 .padding(.horizontal, 16)
             
@@ -101,8 +101,8 @@ public struct PhoneLoginView: View {
         }
         .padding()
         .observeOrientation() // Apply the modifier to detect orientation changes
-        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
-        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
+//        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
+//        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
         //        .navigationBarHidden(true) // hide navigaotr bar at top
         .navigationTitle("Đăng nhập với SĐT")
         //                .navigationBarBackButtonHidden(false) // Show back button (default)
@@ -198,13 +198,19 @@ public struct PhoneLoginView: View {
                     if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
                        let responseDict = jsonResponse as? [String: Any] {
                         print("submitCheckPhone Response: \(responseDict)")
-                        checkPhoneNumberResponse(response: responseDict)
+                        DispatchQueue.main.async {
+                            checkPhoneNumberResponse(response: responseDict)
+                        }
+                        
                     }
                     
                 case .failure(let error):
                     // Handle failure response
                     print("Error: \(error)")
-                    AlertDialog.instance.show(message: error.localizedDescription)
+                    DispatchQueue.main.async {
+                        AlertDialog.instance.show(message: error.localizedDescription)
+                    }
+                    
                 }
             }
         }
@@ -387,13 +393,6 @@ public struct PhoneLoginView: View {
                   
                         AlertDialog.instance.show(message: msg)
 
-//                        DialogManager.showPositiveDialog(
-//                            context: mContext,
-//                            title: "Thông báo",
-//                            message: msg
-//                        ) { dialog in
-//                            dialog.dismiss(animated: true)
-//                        }
                     }
                 } else {
                     // Chưa có tài khoản nào gắn với số điện thoại

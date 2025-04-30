@@ -3,7 +3,7 @@ import SwiftUI
 import AuthenticationServices
 //0394253555
 public struct SocialLoginGroupView: View {
-        @State private var authorizationController: ASAuthorizationController?
+    @State private var authorizationController: ASAuthorizationController?
     
     private var haveGoIdLogin: Bool = false
     public init(haveGoIdLogin: Bool ) {
@@ -16,6 +16,7 @@ public struct SocialLoginGroupView: View {
     
     
     public var body: some View {
+//        socialViewPortraid()
         ResponsiveView(portraitView: socialViewPortraid(), landscapeView: socialViewLandscape())
     }
     
@@ -102,7 +103,7 @@ public struct SocialLoginGroupView: View {
             )
             
             CustomAppleSignInButton(
-                text: "",
+                title: "",
                 action: loginWithApple
             )
             GoButton(
@@ -137,24 +138,24 @@ public struct SocialLoginGroupView: View {
     }
     private func loginGuest() {
         LoadingDialog.instance.show();
-       
+        
         // This would be a sample data payload to send in the POST request
         let bodyData: [String: Any] = [
             "email": GoPlayUUID.shared.userUUID,
         ]
-
+        
         // Now, you can call the `post` method on ApiService
         Task {
             await ApiService.shared.post(path: GoApi.oauthGuest, body: bodyData) { result in
-                        DispatchQueue.main.async {
-                         
-                            LoadingDialog.instance.hide();
-                        }
+                DispatchQueue.main.async {
+                    
+                    LoadingDialog.instance.hide();
+                }
                 
                 switch result {
                 case .success(let data):
                     // Handle successful response
-
+                    
                     // Parse the response if necessary
                     if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
                        let responseDict = jsonResponse as? [String: Any] {
@@ -164,7 +165,7 @@ public struct SocialLoginGroupView: View {
                     
                 case .failure(let error):
                     // Handle failure response
-//                    print("Error: \(error.localizedDescription)")
+                    //                    print("Error: \(error.localizedDescription)")
                     AlertDialog.instance.show(message: error.localizedDescription)
                 }
             }
@@ -174,29 +175,158 @@ public struct SocialLoginGroupView: View {
     // Function for Gmail login (dummy)
     private func loginWithGmail() {
         GoogleSignInManager.shared.signIn { user, error in
-                                if let error = error {
-                                    print("Sign-in error: \(error.localizedDescription)")
-                                } else if let user = user {
-//                                    userName = user.profile.name
-                                    print("Sign-in user.profile.name: \(user.user.profile?.name ?? "EMPTY")")
-                                }
-                            }
+            if let error = error {
+                AlertDialog.instance.show(message: error.localizedDescription)
+            } else if let user = user {
+                //                                    userName = user.profile.name
+                if let profile = user.user.profile, profile != nil{
+                    let idToken = user.user.idToken?.tokenString ?? ""
+                    requestLoginWithGoogle(gId: user.user.userID ?? "", gMail: profile.email, token: idToken, name: profile.name)
+                }
+                
+            }
+        }
     }
     
-    // Function for Apple login (dummy)
+    private func requestLoginWithGoogle(gId: String, gMail: String, token: String,name: String) {
+        LoadingDialog.instance.show();
+        
+        // This would be a sample data payload to send in the POST request
+        var bodyData: [String: Any] = [
+            "ggId": gId,
+            "ggEmail": gMail ?? "no email",
+            "ggName": "",
+            "code": "",//old sdk
+            "token": token,
+        ]
+        if(name != nil){
+            bodyData["apName"] = name
+        }
+        
+        Task {
+            await ApiService.shared.post(path: GoApi.oauthGoogle, body: bodyData) { result in
+                DispatchQueue.main.async {
+                    
+                    LoadingDialog.instance.hide();
+                }
+                
+                switch result {
+                case .success(let data):
+                    // Handle successful response
+                    
+                    // Parse the response if necessary
+                    if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
+                       let responseDict = jsonResponse as? [String: Any] {
+                        print("requestLoginWithGoogle Response: \(responseDict)")
+                        onLoginResponse(response: responseDict)
+                    }
+                    
+                case .failure(let error):
+                    // Handle failure response
+                    //                    print("Error: \(error.localizedDescription)")
+                    AlertDialog.instance.show(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     private func loginWithApple() {
         let provider = ASAuthorizationAppleIDProvider()
-                let request = provider.createRequest()
-                request.requestedScopes = [.fullName, .email]
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        let delegate = SignInWithAppleDelegates.shared
+        controller.delegate = delegate
+        controller.presentationContextProvider = delegate
+        self.authorizationController = controller // retain
+        
+        delegate.onSignInResult = { result in
+            switch result {
+            case .success(let credential):
+                var userIdentifier = credential.user
+                let fullName = credential.fullName //1st return only
+                let email = credential.email  //1st return only
+                
+                var finalEmail: String
+                var finalName: String
 
-                let controller = ASAuthorizationController(authorizationRequests: [request])
-                controller.delegate = SignInWithAppleDelegates.shared
-                controller.presentationContextProvider = SignInWithAppleDelegates.shared
-
-                self.authorizationController = controller // retain
-                controller.performRequests()
-       
+                if let emailUnwrapped = email, !emailUnwrapped.isEmpty {
+                    // Save the email for future logins
+                    KeychainHelper.save(key: "appleEmail\(userIdentifier)", string: emailUnwrapped)
+                    finalEmail = emailUnwrapped
+                } else {
+                    // Try to retrieve the saved email
+                    finalEmail = KeychainHelper.load(key: "appleEmail\(userIdentifier)", type: String.self) ?? ""
+                }
+                
+                if let nameUnwrapped = fullName, nameUnwrapped != nil {
+                    // Save the name for future logins
+                    finalName = "\(nameUnwrapped.givenName ?? "") \(nameUnwrapped.familyName ?? "")"
+                    KeychainHelper.save(key: "appleName\(userIdentifier)", string: finalName)
+                    
+                } else {
+                    // Try to retrieve the saved email
+                    finalName =  KeychainHelper.load(key: "appleName\(userIdentifier)", type: String.self) ?? ""
+                }
+                if let identityToken = credential.identityToken,
+                   let tokenString = String(data: identityToken, encoding: .utf8) {
+                    // Send `tokenString` to your backend for verification
+                    print("🛡️ Identity Token: \(tokenString)")
+                    
+                    requestLoginWithApple(appleId: userIdentifier, appleMail: finalEmail, token: tokenString, name: finalName);
+                    
+                }else{
+                    print("✅ Successfully signed in with Apple! but identityToken is nil or empty")
+                }
+            case .failure(let error):
+                print("❌ Apple Sign-In Failed: \(error.localizedDescription)")
+            }
+        }
+        
+        controller.performRequests()
     }
+    
+    private func requestLoginWithApple(appleId: String, appleMail: String?, token: String,name: String?) {
+        LoadingDialog.instance.show();
+        
+        // This would be a sample data payload to send in the POST request
+        var bodyData: [String: Any] = [
+            "apId": appleId,
+            "apEmail": appleMail ?? "no email",
+            "token": token,
+        ]
+        if(name != nil){
+            bodyData["apName"] = name
+        }
+        
+        Task {
+            await ApiService.shared.post(path: GoApi.oauthApple, body: bodyData) { result in
+                DispatchQueue.main.async {
+                    
+                    LoadingDialog.instance.hide();
+                }
+                
+                switch result {
+                case .success(let data):
+                    // Handle successful response
+                    
+                    // Parse the response if necessary
+                    if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []),
+                       let responseDict = jsonResponse as? [String: Any] {
+                        print("requestLoginWithApple Response: \(responseDict)")
+                        onLoginResponse(response: responseDict)
+                    }
+                    
+                case .failure(let error):
+                    // Handle failure response
+                    //                    print("Error: \(error.localizedDescription)")
+                    AlertDialog.instance.show(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     
     
     func onLoginResponse(response: [String: Any]) {
@@ -206,7 +336,7 @@ public struct SocialLoginGroupView: View {
             
             var message = "Lỗi đăng nhập"
             
-
+            
             if apiResponse.isSuccess() {
                 
                 print("onLoginResponse onRequestSuccess userName: \(apiResponse.data?.accessToken ?? "")")
@@ -221,14 +351,14 @@ public struct SocialLoginGroupView: View {
                 }
                 
                 
-
+                
             } else {
                 message = apiResponse.message
                 AlertDialog.instance.show(message:apiResponse.message)
             }
-
             
-
+            
+            
         } catch {
             AlertDialog.instance.show(message:error.localizedDescription)
         }

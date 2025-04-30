@@ -12,19 +12,29 @@ extension View {
     }
     
     public func navigateToDestination(navigationManager: NavigationManager) -> some View {
-        // Use background modifier with NavigationLink that is triggered based on the NavigationManager state
         self.background(
-            NavigationLink(
-                destination: navigateToDestinationView(destination: navigationManager.destination),
-                isActive: Binding(
-                    get: { navigationManager.destination != nil },
-                    set: { _ in }
-                )
-            ) {
-                EmptyView()
+            Group {
+                if let destination = navigationManager.destination {
+                    NavigationLink(
+                        destination: navigateToDestinationView(destination: destination),
+                        isActive: Binding(
+                            get: { navigationManager.destination != nil },
+                            set: { isActive in
+                                if !isActive {
+                                    navigationManager.resetNavigation()
+                                }
+                            }
+                        )
+                    ) {
+                        EmptyView()
+                    }
+                } else {
+                    EmptyView()
+                }
             }
         )
     }
+
     
     
     // Helper function to return the appropriate view based on the navigation destination

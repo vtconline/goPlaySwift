@@ -1,18 +1,10 @@
-//
-//  Authen.swift
-//  goplaysdk
-//
-//  Created by Ngô Đồng on 17/4/25.
-//
-// Sources/LoginSDK/LoginView.swift
+
 
 import SwiftUI
 
 public struct GoIdAuthenView: View {
-    // Accessing the presentation mode to dismiss the view
-    @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
-    @Environment(\.scenePhase) private var scenePhase
+//    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var navigationManager = NavigationManager()
     
     @State private var username = ""  // Store the username
@@ -74,12 +66,6 @@ public struct GoIdAuthenView: View {
                         .padding(.horizontal, 10) // Horizontal padding for the button
                 }
                 
-                // Forgot Password Button using NavigationLink
-//                NavigationLink(destination: ForgotPasswordView()) {
-//                    Text("Quên mật khẩu?")
-//                        .foregroundColor(.blue)  // Text color for the text button
-//                        .padding(.horizontal, 10) // Horizontal padding for the button
-//                }
                 
                 GoButton( color: .white, padding: EdgeInsets(), useDefaultWidth: false,action:{
                     isShowingSafari = true
@@ -113,9 +99,8 @@ public struct GoIdAuthenView: View {
         .background(Color.white)
         .observeOrientation()
         .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
-        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
         .navigationTitle("Đăng nhập GoID")
-        //                .navigationBarBackButtonHidden(false) // Show back button (default)
+        //.navigationBarBackButtonHidden(false) // Show back button (default)
         
         .navigationBarBackButtonHidden(true)
         .toolbar {

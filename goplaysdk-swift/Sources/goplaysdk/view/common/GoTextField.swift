@@ -3,6 +3,8 @@ import Combine
 
 struct GoTextField<Validator: TextFieldValidator>: View {
     @Binding var text: String
+    
+
     @ObservedObject var validator: Validator // 👈 Use validator binding
     @State private var isPasswordVisible = false
     @Binding var keyBoardFocused: Bool
@@ -16,8 +18,10 @@ struct GoTextField<Validator: TextFieldValidator>: View {
         return 1
         //        return UIScreen.main.scale
     }
+    var keyboardType: UIKeyboardType = .default
+
     
-    public init(text: Binding<String>, placeholder: String = "user name", isPwd: Bool = false, validator: Validator, widthBtn: CGFloat = 300,leftIconName: String? = nil, isSystemIcon: Bool = true, keyBoardFocused: Binding<Bool> = .constant(false)) {
+    public init(text: Binding<String>, placeholder: String = "user name", isPwd: Bool = false, validator: Validator, widthBtn: CGFloat = 300,leftIconName: String? = nil, isSystemIcon: Bool = true, keyBoardFocused: Binding<Bool> = .constant(false), keyboardType: UIKeyboardType = .default) {
         self._text = text // ✅ Bindings use underscore!
         self.placeholder = placeholder
         self.leftIconName = leftIconName
@@ -26,6 +30,7 @@ struct GoTextField<Validator: TextFieldValidator>: View {
         self.isPwd = isPwd
         self.widthBtn = widthBtn
         self._keyBoardFocused = keyBoardFocused // 🟢 Bind the passed in `keyBoardFocused` state
+        self.keyboardType = keyboardType
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -63,8 +68,8 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                         .padding(.trailing, 12)
                         .autocorrectionDisabled(true)
                         .autocapitalization(.none)
-                        .keyboardType(.asciiCapable)
-                        .background(UIViewRepresentableFocus(keyBoardFocused: $keyBoardFocused))
+                        .keyboardType(keyboardType)
+//                        .focused($isFocused)
                 } else {
                     TextField(placeholder, text: $text)
                         .font(.system(size: 16))
@@ -72,8 +77,8 @@ struct GoTextField<Validator: TextFieldValidator>: View {
                         .padding(.trailing, 12)
                         .autocorrectionDisabled(true)
                         .autocapitalization(.none)
-                        .keyboardType(.asciiCapable)
-                        .background(UIViewRepresentableFocus(keyBoardFocused: $keyBoardFocused))
+                        .keyboardType(keyboardType)
+//                        .focused($isFocused)
                 }
                 
                 // Right Eye Icon
@@ -115,22 +120,4 @@ struct GoTextField<Validator: TextFieldValidator>: View {
     }
     
     
-}
-
-// Custom view to manage focus
-struct UIViewRepresentableFocus: UIViewRepresentable {
-    @Binding var keyBoardFocused: Bool
-    
-    func makeUIView(context: Context) -> UITextField {
-        let textField = UITextField()
-        return textField
-    }
-    
-    func updateUIView(_ uiView: UITextField, context: Context) {
-        if keyBoardFocused {
-            uiView.becomeFirstResponder()
-        } else {
-            uiView.resignFirstResponder()
-        }
-    }
 }

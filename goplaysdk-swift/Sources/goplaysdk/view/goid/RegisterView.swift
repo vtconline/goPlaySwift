@@ -3,9 +3,9 @@
 import SwiftUI
 
 public struct RegisterView: View {
-    @Environment(\.presentationMode) var presentationMode
+//    @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
-    @Environment(\.scenePhase) private var scenePhase
+//    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var navigationManager = NavigationManager()
     
     @State private var userName = ""
@@ -27,26 +27,26 @@ public struct RegisterView: View {
         return DeviceOrientation.shared.isLandscape ? 10 : 10
     }
     
+
     
     public var body: some View {
         
         VStack(alignment: .center, spacing: spaceOriented) {
            
             GoTextField<UsernameValidator>(text: $userName, placeholder: "Nhập tài khoản", isPwd: false, validator: userNameValidator, leftIconName: "images/ic_user_focused", isSystemIcon: false)
-                .keyboardType(.phonePad)
+                .keyboardType(.default)
                 .padding(.horizontal, 16)
             
             
             GoTextField<PasswordValidator>(text: $passWord, placeholder: "Nhập mật khẩu", isPwd: true, validator: passwordValidator, leftIconName: "images/ic_lock_focused", isSystemIcon: false)
-                .keyboardType(.phonePad)
+                .keyboardType(.default)
                 .padding(.horizontal, 16)
             
-            GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Số ĐT", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false)
-                .keyboardType(.phonePad)
+            GoTextField<PhoneValidator>(text: $phoneNumber, placeholder: "Số ĐT", isPwd: false, validator: phoneNumberValidator, leftIconName: "images/ic_phone", isSystemIcon: false,keyboardType: .numberPad)
                 .padding(.horizontal, 16)
             
-            GoTextField<EmailValidator>(text: $email, placeholder: "Email", isPwd: false, validator: emailValidator, leftIconName: "images/ic_email", isSystemIcon: false)
-                .keyboardType(.phonePad)
+            GoTextField<EmailValidator>(text: $email, placeholder: "Email", isPwd: false, validator: emailValidator, leftIconName: "images/ic_email", isSystemIcon: false,keyboardType: .emailAddress)
+                
                 .padding(.horizontal, 16)
             
             GoButton(text:"ĐĂNG KÝ", action: submitLoginPhone)
@@ -56,8 +56,8 @@ public struct RegisterView: View {
         }
         .padding()
         .observeOrientation() // Apply the modifier to detect orientation changes
-        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
-        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
+//        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
+//        .resetNavigationWhenInActive(navigationManager: navigationManager, scenePhase: scenePhase)
         //        .navigationBarHidden(true) // hide navigaotr bar at top
         .navigationTitle("Đăng ký GOID")
         //                .navigationBarBackButtonHidden(false) // Show back button (default)

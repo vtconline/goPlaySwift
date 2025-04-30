@@ -6,7 +6,7 @@ import goplaysdk
 enum GoPlaySample: Error {
     case selectLogin
     case userInfo
-    case updateUserInfo
+//    case updateUserInfo
 }
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -21,24 +21,17 @@ struct ContentView: View {
         }
     var body: some View {
         //NavigationStack(path: $navigationManager.path)
-        NavigationStack(path: $navigationManager.path) {
-            VStack(spacing: 0) {
-                //HeaderView()
-                switch(state){
-                case .selectLogin:
-                    MainView()
-                case .userInfo:
-                    userInfoView()
-                case .updateUserInfo:
-                    GuestLoginUpdateProfileView {
-                        state = GoPlaySample.userInfo
-                        // You can trigger any logic you want here, e.g., analytics, saving data, etc.
-                    }
-                }
-             
+        VStack(spacing: 0) {
+            //HeaderView()
+            switch(state){
+            case .selectLogin:
+                MainView()
+            case .userInfo:
+                userInfoView()
             }
+         
         }
-        .navigateToDestination(navigationManager: navigationManager)  // Using the extension method
+        
         .onAppear {
             GenericObserver.shared.observePublisher(
                 publisher: AuthManager.shared.loginResultPublisher.eraseToAnyPublisher(),
@@ -70,7 +63,7 @@ struct ContentView: View {
                         self.userLogin = user
                         self.state = GoPlaySample.userInfo
 //                        navigationManager.popToRoot()
-                        print("Login succeeded for user: \(userLogin?.userName ?? "")")
+                        print("update profile: \(userLogin?.userName ?? "")")
                         
                     case .failure(let error):
                         print("Login failed with error: \(error)")
@@ -81,7 +74,6 @@ struct ContentView: View {
             }
         }
         .onDisappear {
-            print("View disappeared")
             GenericObserver.shared.cancelSubscriptionByID(for: "loginResult")
         }
         
@@ -89,7 +81,7 @@ struct ContentView: View {
     
     func userInfoView() -> some View {
             NavigationStack {
-                VStack {
+                List {
                     if let userLogin = userLogin {
                         Text("Tài khoản: \(userLogin.userName ?? "No User Name")")
                             .font(.system(size: 16))
@@ -114,22 +106,16 @@ struct ContentView: View {
                             iconSize: 24,
                             action:{ state = GoPlaySample.selectLogin}
                         )
-//                        if userLogin.accountType == AccountType.guest.rawValue{
-                            GoButton(
-                                text: "Update Account",
-                                color: .white,
-                                borderColor: .gray.opacity(0.75),
-                                textColor: .black,
-                                //                            iconName: "images/ic_user_focused",
-                                //                            isSystemIcon: false,
-                                iconSize: 24,
-                                action:{
-                                    state = GoPlaySample.updateUserInfo
-//                                    navigationManager.navigate(to: NavigationDestination.goIdAuthenView)
-
-                                }
-                           )
-//                        }
+                        GoNavigationLink(
+                            text: "Update Account",
+                            destination: GuestLoginUpdateProfileView(),
+//                            systemImageName: "phone.fill",
+                            imageSize: CGSize(width: 16, height: 16),
+                            font: .system(size: 16, weight: .semibold),
+                            textColor: .black,
+                            backgroundColor: .white
+                        )
+                        
                     } else {
                         Text("Loading...")
                             .font(.system(size: 16))

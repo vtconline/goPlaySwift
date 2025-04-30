@@ -218,7 +218,7 @@
 			mainGroup = 0F14DB7C2DB8962F00A192EE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				0F14DBB42DB8968400A192EE /* XCLocalSwiftPackageReference "../goplaysdk-swift" */,
+				411E7AC42DC21AC900E5B1A7 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F14DB862DB8962F00A192EE /* Products */;
@@ -585,12 +585,16 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		0F14DBB42DB8968400A192EE /* XCLocalSwiftPackageReference "../goplaysdk-swift" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../goplaysdk-swift";
+/* Begin XCRemoteSwiftPackageReference section */
+		411E7AC42DC21AC900E5B1A7 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vtconline/goPlaySDK-IOS";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		0F14DBB52DB8968400A192EE /* goplaysdk */ = {

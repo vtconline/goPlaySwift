@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0F14DBB62DB8968400A192EE /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 0F14DBB52DB8968400A192EE /* goplaysdk */; };
 		0F14DBDD2DB9E9A700A192EE /* PasswordField.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0F14DBDC2DB9E9A600A192EE /* PasswordField.txt */; };
+		0F9279872DC9F6640091A600 /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 0F9279862DC9F6640091A600 /* goplaysdk */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F14DBB62DB8968400A192EE /* goplaysdk in Frameworks */,
+				0F9279872DC9F6640091A600 /* goplaysdk in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +136,7 @@
 			name = SwiftSample;
 			packageProductDependencies = (
 				0F14DBB52DB8968400A192EE /* goplaysdk */,
+				0F9279862DC9F6640091A600 /* goplaysdk */,
 			);
 			productName = SwiftSample;
 			productReference = 0F14DB852DB8962F00A192EE /* SwiftSample.app */;
@@ -218,7 +221,7 @@
 			mainGroup = 0F14DB7C2DB8962F00A192EE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				411E7AC42DC21AC900E5B1A7 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */,
+				0F9279852DC9F6630091A600 /* XCLocalSwiftPackageReference "../../goPlaySDK-IOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F14DB862DB8962F00A192EE /* Products */;
@@ -589,19 +592,19 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		411E7AC42DC21AC900E5B1A7 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/vtconline/goPlaySDK-IOS";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		0F9279852DC9F6630091A600 /* XCLocalSwiftPackageReference "../../goPlaySDK-IOS" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../goPlaySDK-IOS";
 		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		0F14DBB52DB8968400A192EE /* goplaysdk */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = goplaysdk;
+		};
+		0F9279862DC9F6640091A600 /* goplaysdk */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = goplaysdk;
 		};

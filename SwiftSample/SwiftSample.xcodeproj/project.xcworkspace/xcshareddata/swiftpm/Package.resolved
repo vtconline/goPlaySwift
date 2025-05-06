@@ -1,5 +1,5 @@
 {
-  "originHash" : "6def091437918c7fd0d051849afe6344afbd03c58bfe828291dbfbb29b03dd3b",
+  "originHash" : "9cdd295ca797eaecb7d456a9a3965285bc6ad33507575fdf0cd3d99054156177",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -17,15 +17,6 @@
       "state" : {
         "revision" : "a7965d134c5d3567026c523e0a8a583f73b62b0d",
         "version" : "7.1.0"
-      }
-    },
-    {
-      "identity" : "goplaysdk-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vtconline/goPlaySDK-IOS",
-      "state" : {
-        "branch" : "main",
-        "revision" : "5d1bd5802d325ad8a5ef9302fe1c9214cf64038d"
       }
     },
     {

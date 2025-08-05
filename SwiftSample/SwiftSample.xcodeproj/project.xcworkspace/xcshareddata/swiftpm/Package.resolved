@@ -1,5 +1,5 @@
 {
-  "originHash" : "c5a7891fbb8fcc01b1f03f00e97aa517b22be24525e2dfd9907d77a7e6596cb6",
+  "originHash" : "eca61aa76b93a7bd33d55f058e61a48dad932d532570b02ab2b48335b47c0c01",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -119,6 +119,15 @@
       }
     },
     {
+      "identity" : "goplaysdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vtconline/goPlaySDK-IOS",
+      "state" : {
+        "revision" : "2e48bfda178ed6387b2d2267d54f6522b12f3e28",
+        "version" : "1.0.9"
+      }
+    },
+    {
       "identity" : "grpc-binary",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/grpc-binary.git",
@@ -213,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "3d8596ed08bd13520157f0355e35caed215ffbfa",
-        "version" : "1.6.3"
+        "revision" : "ce592ae52f982c847a4efc0dd881cc9eb32d29f2",
+        "version" : "1.6.4"
       }
     },
     {

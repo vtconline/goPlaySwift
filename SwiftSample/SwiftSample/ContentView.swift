@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var userLogin: GoPlaySession?
     init() {
             // Initialize anything here if needed
+        
         }
     var body: some View {
         //NavigationStack(path: $navigationManager.path)
@@ -52,7 +53,7 @@ struct ContentView: View {
             }
             //update profile info
             GenericObserver.shared.observePublisher(
-                publisher: AuthManager.shared.loginResultPublisher.eraseToAnyPublisher(),
+                publisher: AuthManager.shared.updateProfilePublisher.eraseToAnyPublisher(),
                 id: GoPlayAction.openUpdateProfile
             ) { result in
                 DispatchQueue.main.async {

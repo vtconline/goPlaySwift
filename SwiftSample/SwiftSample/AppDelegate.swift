@@ -1,5 +1,4 @@
 import UIKit
-//import FBSDKCoreKit
 import goplaysdk
 
 /**
@@ -12,13 +11,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Ví dụ: Facebook SDK khởi tạo
-//        ApplicationDelegate.shared.application(
-//            application,
-//            didFinishLaunchingWithOptions: launchOptions
-//        )
 
-        // Khởi tạo SDK của anh
         GoPlaySDK.instance.initSDK(true, "2356aa1f65af420c","SwlDJHfkE8F8ldQr9wzwDF6jTMRG6+/5")
         return GoPlaySDK.instance.application(application, didFinishLaunchingWithOptions: launchOptions)
      

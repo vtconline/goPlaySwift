@@ -9,7 +9,8 @@
 /* Begin PBXBuildFile section */
 		0F14DBB62DB8968400A192EE /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 0F14DBB52DB8968400A192EE /* goplaysdk */; };
 		0F14DBDD2DB9E9A700A192EE /* PasswordField.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0F14DBDC2DB9E9A600A192EE /* PasswordField.txt */; };
-		4134090C2E426BB0006962A0 /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 4134090B2E426BB0006962A0 /* goplaysdk */; };
+		4134090F2E42D0C6006962A0 /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 4134090E2E42D0C6006962A0 /* goplaysdk */; };
+		413409152E43410F006962A0 /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 413409142E43410F006962A0 /* goplaysdk */; };
 		41B6EE742DF0A90500BA5734 /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 41B6EE732DF0A90500BA5734 /* goplaysdk */; };
 		41B8BC642DCA746C00232110 /* goplaysdk in Frameworks */ = {isa = PBXBuildFile; productRef = 41B8BC632DCA746C00232110 /* goplaysdk */; };
 /* End PBXBuildFile section */
@@ -75,9 +76,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				41B6EE742DF0A90500BA5734 /* goplaysdk in Frameworks */,
+				413409152E43410F006962A0 /* goplaysdk in Frameworks */,
 				0F14DBB62DB8968400A192EE /* goplaysdk in Frameworks */,
 				41B8BC642DCA746C00232110 /* goplaysdk in Frameworks */,
-				4134090C2E426BB0006962A0 /* goplaysdk in Frameworks */,
+				4134090F2E42D0C6006962A0 /* goplaysdk in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,7 +144,8 @@
 				0F14DBB52DB8968400A192EE /* goplaysdk */,
 				41B8BC632DCA746C00232110 /* goplaysdk */,
 				41B6EE732DF0A90500BA5734 /* goplaysdk */,
-				4134090B2E426BB0006962A0 /* goplaysdk */,
+				4134090E2E42D0C6006962A0 /* goplaysdk */,
+				413409142E43410F006962A0 /* goplaysdk */,
 			);
 			productName = SwiftSample;
 			productReference = 0F14DB852DB8962F00A192EE /* SwiftSample.app */;
@@ -227,7 +230,7 @@
 			mainGroup = 0F14DB7C2DB8962F00A192EE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4134090A2E426BB0006962A0 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */,
+				413409132E43410F006962A0 /* XCLocalSwiftPackageReference "../../goplaysdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F14DB862DB8962F00A192EE /* Products */;
@@ -598,25 +601,24 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		4134090A2E426BB0006962A0 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/vtconline/goPlaySDK-IOS";
-			requirement = {
-				kind = exactVersion;
-				version = 1.0.9;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		413409132E43410F006962A0 /* XCLocalSwiftPackageReference "../../goplaysdk-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../goplaysdk-ios";
 		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		0F14DBB52DB8968400A192EE /* goplaysdk */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = goplaysdk;
 		};
-		4134090B2E426BB0006962A0 /* goplaysdk */ = {
+		4134090E2E42D0C6006962A0 /* goplaysdk */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 4134090A2E426BB0006962A0 /* XCRemoteSwiftPackageReference "goPlaySDK-IOS" */;
+			productName = goplaysdk;
+		};
+		413409142E43410F006962A0 /* goplaysdk */ = {
+			isa = XCSwiftPackageProductDependency;
 			productName = goplaysdk;
 		};
 		41B6EE732DF0A90500BA5734 /* goplaysdk */ = {

@@ -1,5 +1,5 @@
 {
-  "originHash" : "eca61aa76b93a7bd33d55f058e61a48dad932d532570b02ab2b48335b47c0c01",
+  "originHash" : "c5a7891fbb8fcc01b1f03f00e97aa517b22be24525e2dfd9907d77a7e6596cb6",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -116,15 +116,6 @@
       "state" : {
         "revision" : "60da361632d0de02786f709bdc0c4df340f7613e",
         "version" : "8.1.0"
-      }
-    },
-    {
-      "identity" : "goplaysdk-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vtconline/goPlaySDK-IOS",
-      "state" : {
-        "revision" : "2e48bfda178ed6387b2d2267d54f6522b12f3e28",
-        "version" : "1.0.9"
       }
     },
     {

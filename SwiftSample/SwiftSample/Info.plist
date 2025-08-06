@@ -2,34 +2,32 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleIconName</key>
-    <string>AppIcon</string>
-    <key>ITSAppUsesNonExemptEncryption</key>
-    <false/>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
-    <key>GIDClientID</key>
-    <string>36318724422-hbqlqt43bcs4qb81i3f872l7dh2hphvv.apps.googleusercontent.com</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>com.googleusercontent.apps.36318724422-hbqlqt43bcs4qb81i3f872l7dh2hphvv</string> <!-- Your actual client ID, excluding `.apps.googleusercontent.com` -->
-            </array>
-        </dict>
-        <dict>
-             <key>CFBundleURLSchemes</key>
-             <array>
-                 <string>vn.goplay.SwiftSDKSample</string> <!-- Replace with your app’s bundle ID -->
-             </array>
-        </dict>
-    </array>
-    <!-- (Optional) Required for Sign In with Apple -->
-        <key>SignInWithApple</key>
-        <true/>
-
+	<key>GIDClientID</key>
+	<string>968111791801-6f22l6stb4g3ru8ar7r82j8ddrq49r97.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.968111791801-6f22l6stb4g3ru8ar7r82j8ddrq49r97</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>vn.goplay.SwiftSDKSample</string>
+			</array>
+		</dict>
+	</array>
+	<key>SignInWithApple</key>
+	<true/>
 </dict>
 </plist>
